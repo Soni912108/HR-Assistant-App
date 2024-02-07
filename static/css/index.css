@@ -1,0 +1,142 @@
+/* Reset some default styles */
+body, h1, h2,  ol, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #d5f5e3; /* Light green background */
+  behavior: scroll;
+  position: relative;
+}
+
+/* Hero section */
+.hero-section {
+  display: grid;
+  grid-template-rows: auto auto auto; /* Define rows for image, header, description, button */
+  grid-template-columns: 1fr 1fr; /* Divide into two columns */
+  align-items: center; /* Center content vertically */
+  padding: 50px 20px; /* Adjusted padding */
+}
+
+.hero-headline {
+  font-size: 36px;
+  font-weight: 600;
+  color: #0e6231; /* Dark green */
+  margin-bottom: 10px; /* Reduced margin */
+  margin-left: 50px;
+}
+
+.hero-description {
+  font-size: 18px;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 10px; /* Reduced margin */
+  margin-left: 50px;
+}
+
+.hero-button {
+  background-color: #0e6231; /* Dark green */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  width: 20%;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  margin-left: 50px;
+  margin-bottom: 250px; /* Reduced margin */
+}
+
+.hero-button:hover{
+  background-color: #48c44d;
+}
+
+.hero_img {
+  width: 100%; /* Adjusted width */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  grid-column: 1 / span 1; /* Place image in the first column */
+  grid-row: 1 / span 3; /* Span three rows */
+  margin-bottom: 20px; /* Increased margin */
+}
+
+.hero-content {
+  grid-column: 2 / span 1; /* Place content in the second column */
+  grid-row: 1 / span 3; /* Span three rows */
+  padding-left: 20px; /* Adjusted padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space elements evenly vertically */
+}
+
+
+
+
+/* ----------------------------------Main sections-------------------------- */
+
+main {
+  padding: 20px;
+  display: flex;
+  flex-direction: row; /* Stack sections horizontally */
+}
+
+/* Adjust margins for consistency */
+h2 {
+  color: #27ae60; /* Dark green */
+  font-weight: 600;
+  margin-bottom: 20px; /* Increased margin */
+}
+
+#examples,
+#how-it-works,
+#more-examples {
+  margin-right: 20px; /* Add margin to create space between sections */
+  padding: 20px; /* Add padding for content */
+  border-radius: 10px; /* Rounded corners for sections */
+  border-left: 2px solid #27ae60; /* Left border for each section */
+  border-right: 2px solid #27ae60; /* Right border for each section */
+}
+
+/* Style ordered lists */
+ol {
+  margin-bottom: 20px; /* Add space below the ordered list */
+}
+
+ol li {
+  margin-bottom: 10px; /* Add space between list items */
+}
+
+/* Style unordered lists */
+ul {
+  margin-bottom: 20px; /* Add space below the unordered list */
+}
+
+ul li {
+  margin-bottom: 10px; /* Add space between list items */
+}
+
+
+
+
+
+
+/* Responsive design */
+@media only screen and (max-width: 600px) {
+  .hero-headline {
+    font-size: 28px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+
+  .section-icon {
+    display: none;
+  }
+}

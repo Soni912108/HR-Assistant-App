@@ -1,0 +1,313 @@
+/* Reset some default styles */
+body, h1, h2, p, ol, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  background-color: #4CAF50; /* Updated background color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Increased box-shadow for depth */
+  padding: 1rem; /* Increased padding for a more prominent header */
+  border-radius: 1px; /* Rounded corners for a softer look */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.header h1 {
+  font-size: 2.5rem; /* Slightly increased font size for the title */
+  margin-bottom: 0.75rem; /* Adjusted margin for the title */
+  color: #fff; /* Changed text color to white */
+}
+
+/* Optional: Add a subtle transition for a smoother hover effect */
+.header:hover {
+  background-color: #45a049; /* Darker background color on hover */
+  transition: background-color 0.3s ease;
+}
+
+
+main.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(41, 233, 3, 0.1);
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.disclaimer {
+  font-style: italic;
+  color: #f70a0a; 
+  font-weight: 600;
+  font-size: 19px;
+}
+
+.disclaimer img {
+  width: auto; /* Let the width adjust automatically */
+  height: 1.5em; /* Set a specific height, adjust as needed */
+  margin-bottom: -5px;
+  margin-left: 20px ;
+}
+
+
+
+.content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-right: 5px solid lightgreen; /* Added border for separation */
+  padding-right: 1.5rem; /* Adjusted padding for better separation */
+  width: 50%;
+}
+
+.labels {
+  border-right: 5px solid lightgreen; /* Added border for separation */
+  padding-right: 1.5rem; /* Adjusted padding for better separation */
+}
+
+
+.description{
+  font-size: 19px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.content label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.content textarea,
+.content input[type="file"],
+.content button {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #a9f0a9;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.content button {
+  background-color: #152316;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 23%;
+  text-align: center;
+  font-size: 15px;
+}
+
+.content button:hover {
+  background-color: #215d23;
+}
+
+
+/* Add margin between the buttons */
+.content button + button {
+  margin-left: 79%; 
+  margin-top: -7.5%
+}
+
+
+.custom-file-input-label {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #152316;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  width: 20%;
+  text-align: center;
+}
+
+/* Style for hover effect */
+.custom-file-input-label:hover {
+  background-color: #215d23;
+}
+
+#fileInput {
+  display: none;
+}
+
+.response-container {
+  display: block;
+  width: 45%;
+  padding-left: 1rem;
+  margin-top: 0px;
+  margin-bottom: 75px;
+  background-color: #555454;
+  color: #fff;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #215d23;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* FOOTER STYLE FO THE HR ASSISTANT PAGE */
+footer {
+  background-color: rgb(45, 36, 36);
+  color: #2f8332; /* Light green text color */
+  padding: 20px 0;
+  text-align: center;
+  margin-top: 28px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.button-container button {
+  background-color: #215d23; /* Light green button background */
+  border: none;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-transform: uppercase; /* Optional for stylistic preference */
+  font-weight: bold; /* Optional for stylistic preference */
+  display: inline-flex;
+  align-items: center; /* Center align text and icon (if applicable) */
+}
+
+.paragraph-container p {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.paragraph-container a {
+  color: #1bf41b; /* Light green link color */
+  text-decoration: none;
+}
+
+#logout {
+  background-color: #e05d5d; /* Red for Logout button */
+}
+
+/* Optional for hover effects */
+.button-container button:hover {
+  background-color: #73e777; /* Slightly darker green on hover */
+}
+
+#logout:hover {
+  background-color: #bb1d1d; /* Slightly darker red on hover */
+}
+
+
+/* Form styling */
+#contact-form {
+  background-color: #215d23; /* Light green background */
+  padding: 10px;
+  border-radius: 5px;
+  display: none; /* Initially hidden */
+  width: 450px; /* Set a fixed width for the form */
+  text-align: left; /* Align form elements to the left */
+}
+
+#contact-form input,
+#contact-form textarea {
+  padding: 5px 10px;
+  border: 1px solid #090909; /* Light green border */
+  border-radius: 5px;
+  background-color: #ffff; /* Light green background */
+  color: black;
+  font-size: 14px;
+  margin-bottom: 5px;
+  display: block; /* Make input fields take up a single line */
+  font-family: 'Arial', sans-serif;
+}
+
+#contact-form textarea {
+  height: 75px;
+  resize: none; /* Prevent resizing */
+  width: 350px;
+}
+
+#send,
+#cancel {
+  background-color: #054c05; /* Light green button background */
+  border: none;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 5px;
+  width: 100px; /* Set a fixed width for buttons */
+}
+
+#send:hover,
+#cancel:hover {
+  background-color: #28dd2e; /* Slightly darker green on hover */
+}
+
+
+
+
+@media screen and (max-width: 768px) {
+  .header .content textarea,
+  .header .content input[type="file"] {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .content {
+    width: 100%;
+  }
+
+  .labels {
+    border-right: none;
+    padding-right: 0;
+    margin-bottom: 1rem;
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="static/css/index.css">
+  <link rel="icon" type="image/png" href="static/images/favicon0.png">
+  <title>HR Assistant</title>
+</head>
+<body>
+
+  {% include 'navbar.html' %}
+
+  <section class="hero-section">
+    <h1 class="hero-headline">Welcome to HR Assistant</h1>
+    <img class="hero_img" src="static/images/hr.png" alt="hr_img">
+    <p class="hero-description">HR Assistant, the SaaS product that empowers HR to make better hiring decisions.</p>
+    <a href="{{ url_for('login') }}" class="hero-button">Get Started Now</a>
+  </section>
+
+  <main>
+
+    <section id="how-it-works">
+      <h2>How HR Assistant Works:</h2>
+      <ol>
+        <li>Upload your PDF documents.</li>
+        <li>Provide keywords or instructions to guide the Assistant.</li>
+        <li>Ask questions about the content of the PDFs using the chat interface.</li>
+        <li>HR Assistant analyzes the documents and delivers relevant answers.</li>
+      </ol>
+    </section>
+
+    <section id="examples">
+      <h2>Example Hints</h2>
+      <p>Here are some hints to give to the Assistant:</p>
+      <ul>
+        <li>"Given a PDF file with CVs, identify candidates with experience in Python and project management."</li>
+      </ul>
+    </section>
+
+    <section id="more-examples">
+      <h2>Examples Questions</h2>
+      <p>Ask questions like:</p>
+      <ul>
+        <li>"Summarize the key qualifications required for the Marketing Manager position."</li>
+        <li>"Extract the employee benefits information from the company handbook."</li>
+      </ul>
+    </section>
+
+  </main>
+
+  {% include 'footer.html' %}
+
+</body>
+</html>
