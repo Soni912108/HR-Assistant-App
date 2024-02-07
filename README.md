@@ -6,7 +6,8 @@ Installation
 To run the HR Assistant web application locally, follow these steps:
 
 1-Clone the repository to your local machine:
-git clone https://github.com/your-username/hr-assistant.git
+git clone https://github.com/Soni912108/hr_assistant.git
+
 
 2-Navigate to the project directory:
 cd hr-assistant
