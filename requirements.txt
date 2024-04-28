@@ -19,6 +19,7 @@ Flask-SQLAlchemy==3.1.1
 flask-talisman==1.1.0
 frozenlist==1.4.1
 greenlet==3.0.3
+gunicorn==22.0.0
 h11==0.14.0
 httpcore==1.0.2
 httpx==0.26.0
@@ -29,6 +30,7 @@ looseversion==1.3.0
 MarkupSafe==2.1.4
 multidict==6.0.4
 openai==0.28.0
+packaging==24.0
 pathlib==1.0.1
 pydantic==2.6.0
 pydantic_core==2.16.1
