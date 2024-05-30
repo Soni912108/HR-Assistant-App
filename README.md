@@ -4,45 +4,56 @@ HR Assistant is a web application that provides assistance to HR professionals i
 
 ## Installation
 
-To run the HR Assistant web application locally, follow these steps:
+**To run the HR Assistant web application locally, follow these steps:**
 
-1-Clone the repository to your local machine:
+
+**1-Clone the repository to your local machine:**
 
     git clone https://github.com/Soni912108/hr_assistant.git
 
 
-2-Navigate to the project directory:
+**2-Navigate to the project directory:**
 
-    cd hr-assistant
+    cd hr_assistant
 
-3-Create a virtual environment:
+**3-Create a virtual environment:**
 
+*On Windows:*
+        
     python -m venv venv
 
-4-Activate the virtual environment:
+*On macOS and Linux:*
 
-    4a-On Windows:
-          venv\Scripts\activate
+    python3 -m venv .venv
 
+**4-Activate the virtual environment:**
+
+*On Windows:*
+
+    venv\Scripts\activate
+
+*On macOS and Linux:*
+    
+    source venv/bin/activate
   
-    4b-On macOS and Linux:
-      source venv/bin/activate
-  
-5-Install the required Python packages:
+**5-Install the required Python packages:**
 
     pip install -r requirements.txt
 
-Usage:
 
-1-Start the Flask development server:
+## Usage:
+
+**1-Start the Flask development server:**
 
     python app.py
 
-2-Open your web browser and navigate to http://localhost:5000 to access the HR Assistant web application.
+**2-On start of the server open your web browser and navigate to http://localhost:5000 to access the HR Assistant web application.**
 
-Contributing:
 
-Contributions are welcome! 
-If you'd like to contribute to this project, please fork the repository and submit a pull request.
+## Contributing:
+
+**Contributions are welcome!**
+
+*If you'd like to contribute to this project, please fork the repository and submit a pull request.*
 
 
