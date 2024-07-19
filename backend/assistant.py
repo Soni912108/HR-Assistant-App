@@ -1,13 +1,13 @@
 import openai
-import time,os
+import time
+import os
 
-# Load environment variables from .env file if it exists
+# Load environment variables from .env file 
 if os.path.exists('.env'):
     from dotenv import load_dotenv
     load_dotenv()
 
-# Set  OpenAI API key --MAKE THE OPENAI_API_KEY ENV VARIABLE
-# change the sensitive data if published
+# Set OpenAI API key --MAKE THE OPENAI_API_KEY ENV VARIABLE
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 openai.api_key = OPENAI_API_KEY
 
@@ -24,7 +24,7 @@ def assistant(hints,question,file_contents):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-instruct",
         messages=assistant_messages,
-        temperature=0.5  # Adjust temperature as needed
+        temperature=0.5 
     )
     # Measure the end time
     end_time = time.time()
