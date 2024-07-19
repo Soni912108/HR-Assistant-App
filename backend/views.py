@@ -143,7 +143,7 @@ def register():
 
         # Log in the user and redirect them to the dashboard page
         session['username'] = username
-        flash('Registration successful! You can now log in.', 'success')
+        flash('Registration successful!', 'success')
 
         return redirect(url_for('dashboard'))
 
@@ -194,7 +194,7 @@ def messages():
     try:
         # Check if the request has form data
         if request.method == 'POST' and request.form:
-            # Extract data from form
+            # Extract data from the form
             hints = request.form['hints']
             question = request.form['question']
             # Access files using request.files
