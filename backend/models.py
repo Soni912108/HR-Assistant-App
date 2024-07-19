@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from sqlalchemy.event import listens_for
 
-# Load environment variables from .env file if it exists
+# Load environment variables from .env
 if os.path.exists('.env'):
     from dotenv import load_dotenv
     load_dotenv()
@@ -33,14 +33,14 @@ talisman = Talisman(
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 db = SQLAlchemy(app)
 
-# change the sensitive data if published
+# mail info
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'sonimailfortestuse@gmail.com' #change it to your mail address
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = 'sonimailfortestuse@gmail.com' #change it to your mail address
-app.config['ADMINS'] = ['sonimailfortestuse@gmail.com','erdisonmalko@gmail.com'] #change it to your mail address
+app.config['ADMINS'] = ['sonimailfortestuse@gmail.com'] #change it to your mail address
 mail = Mail(app)
 
 
