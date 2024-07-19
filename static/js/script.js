@@ -1,6 +1,5 @@
-/**
- * Sends the question and code snippet to the code assistant for analysis.
- */
+
+
 async function askAssistant() {
   try {
     // Show loading overlay
@@ -47,29 +46,16 @@ async function askAssistant() {
 
 
 
-/**
- * Clears the chat input fields.
- */
+/*Clears the chat input fields.*/
 function clearChat() {
-    /**
-     * The text area for the hints.
-     * @type {HTMLTextAreaElement}
-     */
     const hintsTextarea = document.getElementById('hints');
     hintsTextarea.value = '';
-  
-    /**
-     * The text area for the question.
-     * @type {HTMLTextAreaElement}
-     */
     const questionTextarea = document.getElementById('question');
     questionTextarea.value = '';
   }
 
 
-/**
- * Updates the file name displayed in the file input label.
- */
+/* Updates the file name displayed in the file input label.*/
 function updateFileName() {
     const fileInput = document.getElementById('fileInput');
     const fileInputLabel = document.getElementById('fileInputLabel');
@@ -110,7 +96,6 @@ sendButton.addEventListener("click", (event) => {
   .then(response => response.json())
   .then(data => {
     // Handle response from server
-    console.log("Form submitted successfully:", data);
     contactForm.reset(); // Clear form fields
     contactForm.style.display = "none"; // Hide form
     contactButton.style.display = "block"; // Show "Contact Support" button again
