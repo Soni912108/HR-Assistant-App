@@ -50,6 +50,10 @@ HR Assistant is a web application that provides assistance to HR professionals i
 **2-On start of the server open your web browser and navigate to http://localhost:5000 to access the HR Assistant web application.**
 
 
+
+## NOTE:
+Make sure to have an OpenAI account and create a API KEY to pass to your .env file, along side with the other sensitive data
+
 ## Contributing:
 
 **Contributions are welcome!**
