@@ -37,10 +37,10 @@ db = SQLAlchemy(app)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'sonimailfortestuse@gmail.com' #change it to your mail address
+app.config['MAIL_USERNAME'] = 'test@gmail.com' #change it to your mail address
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = 'sonimailfortestuse@gmail.com' #change it to your mail address
-app.config['ADMINS'] = ['sonimailfortestuse@gmail.com'] #change it to your mail address
+app.config['MAIL_DEFAULT_SENDER'] = 'test@gmail.com' #change it to your mail address
+app.config['ADMINS'] = ['test@gmail.com'] #change it to your mail address
 mail = Mail(app)
 
 
