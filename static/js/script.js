@@ -31,7 +31,11 @@ async function askAssistant() {
 
     if (!response.ok || data.status === 'error') {
       // Display an error message to the user
-      alert(data.message);
+      if (data.errors && Array.isArray(data.errors)) {
+        alert(`Error: ${data.message}\nDetails: ${data.errors.join(', ')}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
       return;
     }
 
