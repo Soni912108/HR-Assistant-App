@@ -19,7 +19,7 @@ async function askAssistant() {
       formData.append('files', file);
     }
 
-    const response = await fetch('/chat', {
+    const response = await fetch('/app/chat', {
       method: 'POST',
       body: formData,
     });

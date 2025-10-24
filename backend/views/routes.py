@@ -6,10 +6,11 @@ from flask import (
     session, url_for, flash,
     after_this_request
     )
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash,check_password_hash
 
 # local modules
-from backend.models import User
+from backend.database.models import User
 from backend import db
 from backend.utils.helpers import handle_errors_and_redirect
 
@@ -63,6 +64,7 @@ def login():
             return handle_errors_and_redirect('An error occurred. Please try again.')
 
 @routes_bp.route('/logout', methods=['POST'])
+@login_required
 def logout():
     """
     This function handles the logout process for the user.
@@ -133,6 +135,7 @@ def register():
         return redirect(url_for('routes.dashboard'))
 
 @routes_bp.route('/dashboard', methods=['GET'])
+@login_required
 def dashboard():
     """
     This function renders the dashboard page for the user.

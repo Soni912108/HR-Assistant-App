@@ -68,7 +68,7 @@ def create_app():
     app.register_blueprint(chat_bp, url_prefix="/app")
     
     # Import models AFTER db is initialized
-    from .models import User, Conversations, Files, Contact_Forms
+    from .database.models import User, Conversations, Files, Contact_Forms
     
     # Create database tables
     with app.app_context():

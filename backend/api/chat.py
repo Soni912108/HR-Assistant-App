@@ -7,16 +7,18 @@ from flask import (
     session,
     request
     )
+from flask_login import login_required, current_user
 from openai import RateLimitError
 # local modules
 from backend.utils.assistant import assistant
 from backend.utils.file_reader import extract_text_from_pdf_pypdf2 
-from backend.models import Conversations,Contact_Forms
+from backend.database.models import Conversations,Contact_Forms
 from backend import db
 
 chat_bp = Blueprint('chat', __name__)
 
 @chat_bp.route('/chat', methods=['POST'])
+@login_required
 def messages():
     """
     This function handles the chat messages between the user and the assistant.
@@ -65,6 +67,7 @@ def messages():
     
 
 @chat_bp.route('/new_contact_form', methods=['POST'])
+@login_required
 def new_form():
     """
     This function handles the new contact form.
