@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 # local modules
 from backend.database.models import User
 from backend import db
-from backend.utils.helpers import handle_errors_and_redirect, validate_registration_data
+from backend.utils.helpers import validate_registration_data
 
 routes_bp = Blueprint('routes', __name__)
 

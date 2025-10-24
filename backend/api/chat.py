@@ -37,8 +37,7 @@ def dashboard():
     """
     return render_template('dashboard.html')
 
-# LEFT HERE, MAKE SURE THAT THE FILE UPLOADED IS ONE(NOT MULTIPLE) AND SEPARATE THE CODE BETTER INSIDE THE CHAT()
-# 
+
 
 @chat_bp.route('/chat', methods=['POST'])
 @login_required
@@ -168,7 +167,7 @@ def chat():
             
         except Exception as e:
             db.session.rollback()
-            current_app.logger.error(f"Database error: {str(e)}")
+            print(f"Database error: {str(e)}")
             return jsonify({
                 "status": "error",
                 "message": "Error saving conversation"
@@ -182,7 +181,7 @@ def chat():
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Unexpected error in messages endpoint: {str(e)}")
+        print(f"Unexpected error in messages endpoint: {str(e)}")
         return jsonify({
             "status": "error",
             "message": "Internal server error"

@@ -1,8 +1,97 @@
-<footer id="footer" style="background-color: #333;color: white;text-align: center;padding: 35px; 
-left: 0;
-right: 0;
-bottom: 0;">
-    <p id="footer_p">&copy; 2024 HR Assistant. All rights reserved.</p>
-    <p id="footer_2nd_p">Designed by <a href="https://salmon-desert-01cdea703.4.azurestaticapps.net/" id="footer_a" style="color: white; text-decoration: none;" target="_blank">Erdison Malko</a></p>
-    
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-info">
+            <p>&copy; 2024 HR Assistant. All rights reserved.</p>
+            <p>Designed by <a href="https://salmon-desert-01cdea703.4.azurestaticapps.net/" target="_blank">Erdison Malko</a></p>
+        </div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Contact</a>
+        </div>
+    </div>
 </footer>
+
+<style>
+    .footer {
+        background: linear-gradient(135deg, #1a73e8 0%, #185abc 100%);
+        color: white;
+        padding: 2rem 8%;
+        margin-top: auto;
+    }
+
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .footer-info {
+        text-align: left;
+    }
+
+    .footer-info p {
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .footer-info a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.3s ease;
+    }
+
+    .footer-info a:hover {
+        opacity: 0.8;
+    }
+
+    .footer-links {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .footer-link {
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .footer-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: white;
+        transition: width 0.3s ease;
+    }
+
+    .footer-link:hover:after {
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .footer-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .footer-info {
+            text-align: center;
+        }
+
+        .footer-links {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+    }
+</style>

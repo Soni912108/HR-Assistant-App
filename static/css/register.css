@@ -1,92 +1,146 @@
-body, h1, h2,  ol, ul, li {
-  margin: 0;
-  padding: 0;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #f5f5f5;
 }
 
 body {
-  background-color: #f5f5f5;
-  font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
-main {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+.register-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    margin-top: 2.5rem;
 }
 
-
-/* Additional styles for flash messages */
-.flashes {
-  list-style: none;
-  padding: 0;
-  margin-top: 10px;
-  margin-left: auto;
-  margin-right: auto;
+.register-box {
+    background: white;
+    padding: 1.75rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
 }
 
-.flashes li {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #f5c6cb;
-  border-radius: 10px;
-  margin-bottom: -30px;
-
+/* Heading Styles */
+h1 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
 }
 
-h2 {
-  text-align: center;
-  margin-top: 60px; /* Adjusted margin to move the h2 lower */
+.subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 1.5rem;
 }
 
-
-form {
-  max-width: 400px;
-  margin: 15px auto; /* Adjusted margin to move the form down and center it */
-  background-color: #fff;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.form-group {
+    margin-bottom: 1.5rem;
 }
 
 label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-weight: 500;
 }
 
 input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
 }
 
-button {
-  background-color: #152316;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  display: block;
-  margin: 0 auto; /* Center the button within the form */
+input:focus {
+    outline: none;
+    border-color: #007bff;
 }
 
-button:hover {
-  background-color: #215d23;
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
-/* Responsive design */
-@media only screen and (max-width: 600px) {
-  main {
-    padding: 10px;
-  }
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.forgot-password {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.register-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-button:hover {
+    background-color: #0056b3;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+}
+
+.login-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
 }

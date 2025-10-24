@@ -1,41 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" type="text/css" href="static/css/login.css">
-  <link rel="icon" type="image/png" href="static/images/favicon0.png">
-  <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon0.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Login | HR Assistant</title>
 </head>
-
 <body>
-  {% include 'navbar.html' %}
+    {% include 'navbar.html' %}
 
-    {% block content %}
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flashes">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <h2>Login</h2>
-    <form method="post" action="{{ url_for('routes.login') }}">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required autocomplete="current-username">
-      <br>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required autocomplete="current-email">
-      <br>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required autocomplete="current-password">
-      <br>
-      <button type="submit">Login</button>
-    </form>
-{% endblock %}
+    <div class="login-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-{% include 'footer_A.html' %}
+        <div class="login-box">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Please login to your account</p>
+
+            <form method="post" action="{{ url_for('routes.login') }}" class="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           required 
+                           autocomplete="current-email"
+                           placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           required 
+                           autocomplete="current-password"
+                           placeholder="Enter your password">
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" name="remember">
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-button">Login</button>
+            </form>
+
+            <div class="register-link">
+                Don't have an account? <a href="{{ url_for('routes.register') }}">Register here</a>
+            </div>
+        </div>
+    </div>
 </body>
-
-
-
-
-
+</html>
