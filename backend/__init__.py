@@ -14,7 +14,7 @@ if os.path.exists('.env'):
 # Initialize extensions
 db = SQLAlchemy()
 mail = Mail()
-
+# Main application function
 def create_app():
     # Create Flask app
     app = Flask(__name__)
