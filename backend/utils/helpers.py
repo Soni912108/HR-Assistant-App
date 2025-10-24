@@ -6,7 +6,6 @@ from typing import Optional, Union, Tuple
 
 # third-party modules
 from flask import Response, render_template, flash, redirect, request
-from werkzeug.utils import secure_filename
 
 def handle_errors_and_redirect(
     error_message: str,

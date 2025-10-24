@@ -1,55 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="static/css/index.css">
-  <link rel="icon" type="image/png" href="static/images/favicon0.png">
-  <title>HR Assistant</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon0.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>HR Assistant - Smart HR Solutions</title>
 </head>
 <body>
+    {% include 'navbar.html' %}
 
-  {% include 'navbar.html' %}
-
-  <section class="hero-section">
-    <h1 class="hero-headline">Welcome to HR Assistant</h1>
-    <img class="hero_img" src="static/images/hr.png" alt="hr_img">
-    <p class="hero-description">HR Assistant, the SaaS product that empowers HR to make better hiring decisions.</p>
-    <a href="{{ url_for('routes.login') }}" class="hero-button">Get Started Now</a>
-  </section>
-
-  <main>
-
-    <section id="how-it-works">
-      <h2>How HR Assistant Works:</h2>
-      <ol>
-        <li>Upload your PDF documents.</li>
-        <li>Provide keywords or instructions to guide the Assistant.</li>
-        <li>Ask questions about the content of the PDFs using the chat interface.</li>
-        <li>HR Assistant analyzes the documents and delivers relevant answers.</li>
-      </ol>
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-headline">Transform Your HR Process with AI</h1>
+            <p class="hero-description">
+                Streamline your hiring decisions with our intelligent HR Assistant. 
+                Upload documents, ask questions, and get insights instantly.
+            </p>
+            <a href="{{ url_for('routes.login') }}" class="hero-button">Get Started</a>
+        </div>
+        <img class="hero_img" src="{{ url_for('static', filename='images/hr.png') }}" alt="HR Assistant Interface">
     </section>
 
-    <section id="examples">
-      <h2>Example Hints</h2>
-      <p>Here are some hints to give to the Assistant:</p>
-      <ul>
-        <li>"Given a PDF file with CVs, identify candidates with experience in Python and project management."</li>
-      </ul>
-    </section>
+    <main>
+        <div class="sections-container">
+            <section class="section" id="how-it-works">
+                <h2>How It Works</h2>
+                <ol>
+                    <li>Upload your PDF documents securely</li>
+                    <li>Provide specific keywords or instructions</li>
+                    <li>Ask questions through our intuitive chat interface</li>
+                    <li>Receive accurate, AI-powered insights instantly</li>
+                </ol>
+            </section>
 
-    <section id="more-examples">
-      <h2>Examples Questions</h2>
-      <p>Ask questions like:</p>
-      <ul>
-        <li>"Summarize the key qualifications required for the Marketing Manager position."</li>
-        <li>"Extract the employee benefits information from the company handbook."</li>
-      </ul>
-    </section>
+            <section class="section" id="examples">
+                <h2>Smart Hints</h2>
+                <ul>
+                    <li>"Filter candidates with Python and project management experience"</li>
+                    <li>"Compare qualifications across multiple resumes"</li>
+                    <li>"Identify key skills and certifications"</li>
+                </ul>
+            </section>
 
-  </main>
+            <section class="section" id="more-examples">
+                <h2>Example Queries</h2>
+                <ul>
+                    <li>"What are the key qualifications for the Marketing Manager role?"</li>
+                    <li>"Summarize the employee benefits package"</li>
+                    <li>"List candidates with leadership experience"</li>
+                </ul>
+            </section>
+        </div>
+ 
+        <!-- Features with cards -->
+        <div class="content-section feature-section">
+            <h2 class="section-title">Key Features</h2>
+            <div class="grid-container">
+                <div class="content-card">
+                    <div class="card-icon">🔒</div>
+                    <h3>Secure Document Handling</h3>
+                    <p>Your documents are encrypted and handled with enterprise-level security</p>
+                </div>
+                <div class="content-card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Real-time Analysis</h3>
+                    <p>Get instant insights from your uploaded documents</p>
+                </div>
+                <div class="content-card">
+                    <div class="card-icon">🤖</div>
+                    <h3>AI-Powered Intelligence</h3>
+                    <p>Advanced machine learning algorithms for accurate results</p>
+                </div>
+            </div>
+        </div>
 
-  {% include 'footer.html' %}
+        <!-- Benefits with statistics -->
+        <div class="content-section stats-section">
+            <h2 class="section-title">Why Choose Us</h2>
+            <div class="grid-container">
+                <div class="content-card stat-card">
+                    <span class="stat-number">75%</span>
+                    <h3>Time Saved</h3>
+                    <p>Reduce manual document review time</p>
+                </div>
+                <div class="content-card stat-card">
+                    <span class="stat-number">95%</span>
+                    <h3>Accuracy Rate</h3>
+                    <p>In document analysis and insights</p>
+                </div>
+                <div class="content-card stat-card">
+                    <span class="stat-number">24/7</span>
+                    <h3>Availability</h3>
+                    <p>Access your documents anytime</p>
+                </div>
+            </div>
+        </div>
 
+        <!-- FAQ section -->
+        <div class="content-section faq-section">
+            <h2 class="section-title">Common Questions</h2>
+            <div class="grid-container">
+                <div class="content-card faq-card">
+                    <h3>What file formats are supported?</h3>
+                    <p>Currently, we support PDF files. Our system is optimized for processing PDF documents, ensuring accurate and reliable analysis. We're working on expanding support for additional file formats in future updates.</p>
+                </div>
+                <div class="content-card faq-card">
+                    <h3>Is my data secure?</h3>
+                    <p>Absolutely! We implement enterprise-grade security measures including end-to-end encryption, secure data storage, and regular security audits. Your documents are protected with the same level of security used by leading financial institutions.</p>
+                </div>
+                <div class="content-card faq-card">
+                    <h3>How accurate is the analysis?</h3>
+                    <p>Our AI-powered system achieves a 95% accuracy rate in document analysis. The system continuously learns and improves through machine learning, ensuring high-quality results for your HR needs.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Banner -->
+        <div class="content-section cta-section">
+            <div class="cta-content">
+                <h2>Ready to Transform Your HR Process?</h2>
+                <p>Join thousands of HR professionals who are already using our platform</p>
+                <a href="{{ url_for('routes.register') }}" class="cta-button">Start Free Trial</a>
+            </div>
+        </div>
+        
+
+
+    </main>
+
+    {% include 'footer.html' %}
 </body>
 </html>

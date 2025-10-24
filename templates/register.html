@@ -1,40 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" type="text/css" href="static/css/register.css">
-  <link rel="icon" type="image/png" href="static/images/favicon0.png">
-  <title>Register</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/register.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon0.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Register | HR Assistant</title>
 </head>
-
 <body>
-  {% include 'navbar.html' %}
+    {% include 'navbar.html' %}
 
-    {% block content %}
-    
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flashes">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <h2>Register</h2>
-    <form method="post" action="{{ url_for('routes.register') }}">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required>
-      <br>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-      <br>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-      <br>
-      <label for="confirm-password">Confirm Password:</label>
-      <input type="password" id="confirm-password" name="confirm-password" required>
-      <br>
-      <button type="submit">Register</button>
-    </form>
-    {% endblock %}
+    <div class="register-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-  {% include 'footer_A.html' %}
+        <div class="register-box">
+            <h1>Create an Account</h1>
+            <p class="subtitle">Please register your account</p>
+
+            <form method="post" action="{{ url_for('routes.register') }}" class="register-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           required 
+                           autocomplete="current-email"
+                           placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           required 
+                           autocomplete="password"
+                           placeholder="Enter your password">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" 
+                           id="confirm-password" 
+                           name="confirm-password" 
+                           required 
+                           autocomplete="confirm-password"
+                           placeholder="Confirm your password">
+                </div>
+
+                <button type="submit" class="register-button">Register</button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="{{ url_for('routes.login') }}">Login here</a>
+            </div>
+        </div>
+    </div>
 </body>
+</html>

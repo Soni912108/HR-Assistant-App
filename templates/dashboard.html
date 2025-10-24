@@ -3,66 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/static/css/dashboard.css">
-  <link rel="icon" type="image/png" href="static/images/favicon0.png">
-  <title>Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon0.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>HR Assistant | Dashboard</title>
 </head>
 <body>
-  <header class="header">
-    <h1>HR Assistant</h1>
-  </header>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <h1>🤖 HR Assistant</h1>
+    </div>
+    <div class="nav-actions">
+      <form action="/logout" method="post" class="nav-form">
+        <button type="submit" class="nav-btn logout-btn">🚪 Logout</button>
+      </form>
+      <button type="button" class="nav-btn github-btn">
+        <a href="https://github.com/Soni912108/HR-Assistant-App" target="_blank">📂 GitHub</a>
+      </button>
+    </div>
+  </nav>
+  
   <main class="container">
-    <p class="disclaimer">
-      <img src="static/images/info-button.png" alt="Information" class="disclaimer_image">
-      This is a prototype.Please use your data with caution! 
-    </p>    
-    <p class="description">Below you can upload a file, PDF only, input your hints (as-to-behave-instructions to the Assistant), and your question.
-      Hit Ask Assistant and wait for your answer!</p>
-      <br>
-      <br>
+    <div class="disclaimer">
+      <span>⚠️ This is a prototype. Please use your data with caution!</span>
+    </div>
+    
+    <div class="description">
+      <h2>AI-Powered HR Assistant</h2>
+      <p>Upload PDF documents, provide instructions, and ask questions for instant AI insights.</p>
+    </div>
+    
+    
     <section class="content">
-      <br>
-      <label for="fileInput" class="custom-file-input-label" id="fileInputLabel">
-        <span>Upload files here</span>
-      </label>
-      <input type="file" id="fileInput" accept=".pdf" multiple onchange="updateFileName()" style="display: none;">
-      <br>
-      <label for="hints">Hints:</label>
-      <textarea id="hints" rows="4" cols="50" placeholder="Enter hints here"></textarea>
-      <label for="question">Question:</label>
-      <textarea id="question" rows="4" cols="50" placeholder="Enter your question here"></textarea>
+      <div class="upload-section">
+        <label for="fileInput" class="custom-file-input-label" id="fileInputLabel">
+          📁 Choose PDF Files to Upload
+        </label>
+        <input type="file" id="fileInput" accept=".pdf" multiple onchange="updateFileName()">
+        <div id="fileList" class="file-list"></div>
+      </div>
       
-      <button onclick="askAssistant()">Ask Assistant</button>
-      <button onclick="clearChat()">Clear Chat</button>
+      <div class="form-section">
+        <label for="hints">💡 Instructions & Hints</label>
+        <textarea id="hints" placeholder="Provide specific instructions for how the assistant should behave and analyze your documents..."></textarea>
+        
+        <label for="question">❓ Your Question</label>
+        <textarea id="question" placeholder="Ask your question about the uploaded documents..."></textarea>
+      </div>
+      
+      <div class="button-section">
+        <button onclick="askAssistant()" class="primary-btn">
+          🚀 Ask Assistant
+        </button>
+        <button onclick="clearChat()" class="secondary-btn">
+          🗑️ Clear All
+        </button>
+      </div>
     </section>
+    
     <div class="overlay">
-        <div class="loading"></div>
+      <div class="loading"></div>
     </div>
     
     <div class="response-container" id="response">
-      <h3 class="assistant">Assistant Response will display here</h3>
-      <section></section>
+      <h3>🤖 Assistant Response</h3>
+      <div class="response-content">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>This is a second paragraph to check line spacing and general text flow within the response container. It should demonstrate how longer responses would appear.</p>
+      </div>
     </div>
-    
   </main>
 
   <footer>
-    <div class="button-container right-buttons">
-      <form action="/logout" method="post">
-        <button type="submit" id="logout">Logout</button>
-      </form>
-      <button type="button" id="github">
-        <a href="https://github.com/Soni912108/hr_assistant" target="_blank" style="color: black; text-decoration: none; padding: 3px 7px;">GitHub Repo</a>
-      </button>
-    </div>
-
     <div class="paragraph-container">
-      <p>&copy; 2024 HR Assistant. All rights reserved.</p>
-      <p>Designed by <a href="https://salmon-desert-01cdea703.4.azurestaticapps.net/" target="_blank">Erdison Malko</a></p>
+      <p>Contact: <a href="https://salmon-desert-01cdea703.4.azurestaticapps.net/" target="_blank">Erdison Malko</a></p>
+      
     </div>
-
   </footer>
-  
-  <script src="/static/js/script.js"></script>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

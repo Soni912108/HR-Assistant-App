@@ -1,54 +1,95 @@
 <nav id="navbar">
-  <div>
-    <img src="static/images/favicon.png" alt="logo" id="the_logo" style="width: 85px; 
-      height: 60px;
-      position: absolute;
-      left: 3%;
-      top: -0.5%;
-      border: none;
-    ">
+  <div class="nav-brand">
+    <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="logo" class="nav-logo">
   </div>
   
-  <a id="nav_link_home" href="{{ url_for('routes.home') }}">Home</a>
-  <a id="nav_link_login" href="{{ url_for('routes.login') }}">Login</a>
-  <a id="nav_link_register" href="{{ url_for('routes.register') }}">Register</a>
+  <div class="nav-links">
+    <a href="{{ url_for('routes.home') }}" class="nav-link">Home</a>
+    <a href="{{ url_for('routes.login') }}" class="nav-link">Login</a>
+    <a href="{{ url_for('routes.register') }}" class="nav-link">Register</a>
+  </div>
 </nav>
 
 <style>
   #navbar {
-  background-color: #333;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  /* Add a subtle box-shadow */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-#navbar a {
-  color: white;
-  margin: 0 10px;
-  text-decoration: none;
-  /* Transition color and transform on hover */
-  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
-}
-
-#navbar a:hover {
-  color: #f7ca18; /* Yellow on hover */
-  transform: scale(1.1); /* Slightly grow on hover */
-}
-
-/* Add a background animation (optional) */
-#navbar {
-  animation: background-move 5s linear infinite;
-}
-
-@keyframes background-move {
-  0% {
-    background-position: 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    max-width: 100%;
   }
-  100% {
-    background-position: 100% 0;
-  }
-}
 
+  .nav-brand {
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .nav-logo:hover {
+    transform: scale(1.05);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .nav-link {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .nav-link:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #007bff;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+
+  .nav-link:hover {
+    color: #007bff;
+  }
+
+  .nav-link:hover:after {
+    width: 100%;
+  }
+
+  /* Mobile Responsive Design */
+  @media (max-width: 768px) {
+    #navbar {
+      padding: 1rem;
+    }
+
+    .nav-links {
+      gap: 1rem;
+    }
+
+    .nav-link {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
 </style>
