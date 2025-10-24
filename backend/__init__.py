@@ -11,19 +11,19 @@ if os.path.exists('.env'):
     from dotenv import load_dotenv
     load_dotenv()
 
-# Create Flask app
-app = Flask(__name__)
-# SQLite Configuration
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize extensions
 db = SQLAlchemy()
 mail = Mail()
 
 def create_app():
+    # Create Flask app
+    app = Flask(__name__)
     
-    db.init_app(app)
+    # SQLite Configuration
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
     # Basic Configuration
     app.config['SECRET_KEY'] = os.urandom(24)
     
@@ -57,22 +57,22 @@ def create_app():
     )
     
     # Initialize extensions with app
+    db.init_app(app)
     mail.init_app(app)
+    
+    # Register blueprints
+    from .views.routes import routes_bp
+    from .api.chat import chat_bp
+    
+    app.register_blueprint(routes_bp)
+    app.register_blueprint(chat_bp, url_prefix="/app")
+    
+    # Import models
+    from .database.models import User, Conversations, Files, Contact_Forms
 
-    with app.app_context():
-        try:
-            # Register blueprints
-            from .views.routes import routes_bp
-            from .api.chat import chat_bp
-            
-            app.register_blueprint(routes_bp)
-            app.register_blueprint(chat_bp, url_prefix="/app")
-            # Initialize database
-            from .database.models import User, Conversations, Files, Contact_Forms
-            db.create_all(app=app)
-            print("Database created successfully")
-
-        except Exception as e:
-            print(f"Error creating database: {e}")
+    # Create database tables before each request
+    @app.before_request
+    def create_tables():
+        db.create_all()
     
     return app
