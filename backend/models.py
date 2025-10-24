@@ -2,8 +2,7 @@
 from flask_mail import Message
 from sqlalchemy.event import listens_for
 
-from backend.__init__ import db, mail
-
+from backend import db, mail
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

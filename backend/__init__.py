@@ -67,13 +67,11 @@ def create_app():
     app.register_blueprint(routes_bp)
     app.register_blueprint(chat_bp, url_prefix="/app")
     
-    # Import models
-    from .database.models import User, Conversations, Files, Contact_Forms
-
-    # Create database tables before each request
-    @app.before_request
-    def create_tables():
-        with app.app_context():
-            db.create_all()  # Create tables on startup
+    # Import models AFTER db is initialized
+    from .models import User, Conversations, Files, Contact_Forms
+    
+    # Create database tables
+    with app.app_context():
+        db.create_all()
 
     return app

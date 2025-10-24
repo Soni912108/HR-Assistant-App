@@ -11,8 +11,8 @@ from openai import RateLimitError
 # local modules
 from backend.utils.assistant import assistant
 from backend.utils.file_reader import extract_text_from_pdf_pypdf2 
-from backend.database.models import db,Conversations,Contact_Forms
-
+from backend.models import Conversations,Contact_Forms
+from backend import db
 
 chat_bp = Blueprint('chat', __name__)
 

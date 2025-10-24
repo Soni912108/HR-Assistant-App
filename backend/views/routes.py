@@ -9,17 +9,15 @@ from flask import (
 from werkzeug.security import generate_password_hash,check_password_hash
 
 # local modules
-from backend.database.models import User
+from backend.models import User
 from backend import db
 from backend.utils.helpers import handle_errors_and_redirect
-
 
 routes_bp = Blueprint('routes', __name__)
 
 @routes_bp.route('/')
 def home():
     return render_template('index.html')
-
 
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -152,7 +150,7 @@ def dashboard():
             response.headers['Expires'] = '0'
             return response
 
-        return render_template('routes.dashboard.html')
+        return render_template('dashboard.html')
     else:
         flash('You need to log in first.', 'danger')
         return redirect(url_for('routes.login'))
