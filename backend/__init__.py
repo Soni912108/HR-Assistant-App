@@ -73,6 +73,7 @@ def create_app():
     # Create database tables before each request
     @app.before_request
     def create_tables():
-        db.create_all()
-    
+        with app.app_context():
+            db.create_all()  # Create tables on startup
+
     return app
