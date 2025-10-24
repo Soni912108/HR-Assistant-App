@@ -1,0 +1,11 @@
+venv/
+.env
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+*.log
+flask_session/
+backend/app.db

@@ -18,7 +18,7 @@
       {% endif %}
     {% endwith %}
     <h2>Login</h2>
-    <form method="post" action="{{ url_for('login') }}">
+    <form method="post" action="{{ url_for('routes.login') }}">
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" required autocomplete="current-username">
       <br>

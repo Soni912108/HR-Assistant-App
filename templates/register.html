@@ -19,7 +19,7 @@
       {% endif %}
     {% endwith %}
     <h2>Register</h2>
-    <form method="post" action="{{ url_for('register') }}">
+    <form method="post" action="{{ url_for('routes.register') }}">
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" required>
       <br>
