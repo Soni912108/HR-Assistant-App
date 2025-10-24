@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_session import Session
 from flask_talisman import Talisman
 from flask_mail import Mail
+from flask_login import LoginManager
 
 # Load environment variables from .env
 if os.path.exists('.env'):
@@ -66,9 +67,16 @@ def create_app():
     
     app.register_blueprint(routes_bp)
     app.register_blueprint(chat_bp, url_prefix="/app")
-    
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'routes.login'
+    login_manager.init_app(app)
+    @login_manager.user_loader
+    def load_user(user_id):
+        # since the user_id is just the primary key of our user table, use it in the query for the user
+        return User.query.get(int(user_id))
     # Import models AFTER db is initialized
-    from .models import User, Conversations, Files, Contact_Forms
+    from .database.models import User
     
     # Create database tables
     with app.app_context():
