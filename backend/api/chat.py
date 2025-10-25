@@ -1,12 +1,9 @@
 # builtin modules
 from datetime import datetime
-import os
-import uuid
 # third-party modules
 from flask import (
     Blueprint,
     jsonify,
-    session,
     request,
     render_template,
     current_app
