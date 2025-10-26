@@ -1,12 +1,13 @@
 # builtin modules
 import re
-import os
-import uuid
 from typing import Optional, Union, Tuple
-
+# local modules
+from .file_utils import allowed_file
 # third-party modules
 from flask import Response, render_template, flash, redirect, request
 
+
+# Error handling and redirection
 def handle_errors_and_redirect(
     error_message: str,
     category: str = 'danger',
@@ -35,8 +36,13 @@ def handle_errors_and_redirect(
     flash(error_message, category)
     return redirect(redirect_url) if redirect_url else render_template(request.endpoint.split('.')[-1] + '.html')
 
-
-def validate_registration_data(email: str, username: str, password: str, confirm_password: str) -> Tuple[bool, Optional[str]]:
+# Registration data validation
+def validate_registration_data(
+        email: str, 
+        username: str, 
+        password: str, 
+        confirm_password: str
+    ) -> Tuple[bool, Optional[str]]:
     """
     Validates registration form data.
     
@@ -74,8 +80,8 @@ def validate_registration_data(email: str, username: str, password: str, confirm
         return False, 'Username must be less than 20 characters long'
     
     # Validate password length
-    if len(password) < 10:
-        return False, 'Password must be at least 10 characters long'
+    if not is_strong_password(password):
+        return False, 'Password must be: of length 10, have uppercase and lowercase letters, digits and symbols'
     
     # Check if passwords match
     if password != confirm_password:
@@ -83,7 +89,7 @@ def validate_registration_data(email: str, username: str, password: str, confirm
     
     return True, None
 
-
+# Email format validation
 def is_valid_email(email: str) -> bool:
     """
     Validates email format using regex.
@@ -101,7 +107,7 @@ def is_valid_email(email: str) -> bool:
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-
+# Password strength validation
 def is_strong_password(password: str) -> bool:
     """
     Checks if password meets strength requirements.
@@ -116,34 +122,36 @@ def is_strong_password(password: str) -> bool:
     bool
         True if password is strong, False otherwise
     """
-    return (len(password) >= 8 and 
+    special_symbols = "!@#$%^&*()"
+
+    return (len(password) >= 10 and 
             any(c.isupper() for c in password) and
             any(c.islower() for c in password) and
-            any(c.isdigit() for c in password))
+            any(c.isdigit() for c in password) and
+            any(c in special_symbols for c in password)
+            )
 
 
-# Configuration constants
-ALLOWED_EXTENSIONS = {'pdf'}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-MAX_FILES = 5
-MAX_HINTS_LENGTH = 500
-MAX_QUESTION_LENGTH = 1000
 
-def allowed_file(filename):
-    """Check if file extension is allowed"""
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def validate_chat_request(form_data, files):
+# Chat request validation
+def validate_chat_request(form_data):
     """Validate chat request data"""
+
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    MAX_HINTS_LENGTH = 500
+    MAX_QUESTION_LENGTH = 1000
+
     errors = []
     
     # Check required fields
+    if not form_data:
+        errors.append("No form data provided")
+
     if not form_data.get('hints'):
         errors.append("Hints are required")
     if not form_data.get('question'):
         errors.append("Question is required")
-    if not files:
+    if not form_data.getlist('file'):
         errors.append("At least one file is required")
     
     # Validate hints length
@@ -156,22 +164,22 @@ def validate_chat_request(form_data, files):
     if len(question) > MAX_QUESTION_LENGTH:
         errors.append(f"Question must be less than {MAX_QUESTION_LENGTH} characters")
     
-    # Validate files
-    if len(files) > MAX_FILES:
-        errors.append(f"Maximum {MAX_FILES} files allowed")
-    
-    for file in files:
-        if file.filename == '':
-            errors.append("Empty filename not allowed")
-        elif not allowed_file(file.filename):
-            errors.append(f"File {file.filename} is not a PDF")
-        else:
-            # Check file size more efficiently
-            file.seek(0, 2)  # Seek to end
-            file_size = file.tell()
-            file.seek(0)  # Reset to beginning
-            
-            if file_size > MAX_FILE_SIZE:
-                errors.append(f"File {file.filename} is too large (max 10MB)")
+    # Validate file
+    file = form_data.getlist('file')
+    if len(file) > 1:
+        errors.append(f"Maximum 1 file allowed")
+
+    # if file.filename == '':
+    #     errors.append("Empty filename not allowed")
+    elif not allowed_file(file.filename):
+        errors.append(f"File {file.filename} is not a PDF")
+    else:
+        # Check file size more efficiently
+        file.seek(0, 2)  # Seek to end
+        file_size = file.tell()
+        file.seek(0)  # Reset to beginning
+        
+        if file_size > MAX_FILE_SIZE:
+            errors.append(f"File {file.filename} is too large (max 10MB)")
     
     return errors
