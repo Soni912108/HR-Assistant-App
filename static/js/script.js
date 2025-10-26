@@ -55,73 +55,62 @@ function updateFileInput() {
 // Enhanced askAssistant function
 async function askAssistant() {
     try {
-        // Validate inputs
         const question = document.getElementById('question').value.trim();
         const hints = document.getElementById('hints').value.trim();
         const fileInput = document.getElementById('fileInput');
         const files = fileInput.files;
-
-        // Show validation errors
+        // get the conversation ID from the HTML
+        const conversationId = document.querySelector('.conversation-info p').textContent.split('ID: ')[1];
         if (!question) {
             showError('Please enter a question.');
             return;
         }
-
         if (files.length === 0) {
             showError('Please upload at least one PDF file.');
             return;
         }
 
-        // Show loading overlay
         showLoading(true);
-        
-        // Update response container
+
         const responseContainer = document.getElementById('response');
         responseContainer.style.display = 'block';
-        
-        // Show processing message
         updateResponseContent('🔄 Processing your request...', 'processing');
 
+        // Build the multipart form data
         const formData = new FormData();
         formData.append('hints', hints);
         formData.append('question', question);
+        formData.append('conversation_id', conversationId);
 
+        // Append all selected files under the same key “files”
         for (const file of files) {
             formData.append('files', file);
         }
 
+        // POST to Flask
         const response = await fetch('/app/chat', {
             method: 'POST',
             body: formData,
+            credentials: 'include' // VERY IMPORTANT for Flask-Login cookies!
         });
 
         const data = await response.json();
-
-        // Hide loading overlay
         showLoading(false);
 
         if (!response.ok || data.status === 'error') {
-            let errorMessage = 'An error occurred while processing your request.';
-            
-            if (data.errors && Array.isArray(data.errors)) {
-                errorMessage = `${data.message}\nDetails: ${data.errors.join(', ')}`;
-            } else if (data.message) {
-                errorMessage = data.message;
-            }
-            
+            const errorMessage = data.message || 'An error occurred while processing your request.';
             showError(errorMessage);
             return;
         }
 
-        // Display successful response
         updateResponseContent(data.assistant_response, 'success');
-        
     } catch (error) {
         console.error('Error:', error);
         showLoading(false);
         showError('An unexpected error occurred. Please try again.');
     }
 }
+
 
 // Enhanced clearChat function
 function clearChat() {
