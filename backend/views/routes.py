@@ -51,6 +51,7 @@ def login():
 
 @routes_bp.route("/register", methods=["GET", "POST"])
 def register():
+    # Debug prints removed
     if request.method == "GET":
         return render_template("register.html")
 
@@ -58,7 +59,7 @@ def register():
     email = request.form.get("email", "").strip().lower()
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
-    confirm_password = request.form.get("confirm_password", "")
+    confirm_password = request.form.get("confirm-password", "")  # Match form field name with hyphen
 
     # Input validation using helper function
     is_valid, error_message = validate_registration_data(email, username, password, confirm_password)
