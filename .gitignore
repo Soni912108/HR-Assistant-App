@@ -9,3 +9,4 @@ __pycache__/
 *.log
 flask_session/
 backend/app.db
+migrations/

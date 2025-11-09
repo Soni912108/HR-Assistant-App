@@ -1,5 +1,7 @@
 // Global variables for file management
 let selectedFiles = [];
+let currentFileId = null;
+let currentConversationId = null;
 
 // Enhanced file upload handling
 function updateFileName() {
@@ -13,6 +15,9 @@ function updateFileName() {
     
     if (files.length === 0) {
         fileList.innerHTML = '<p style="color: #bdc3c7; font-style: italic;">No files selected, Drag and Drop here</p>';
+        // Reset file and conversation IDs when no file is selected
+        currentFileId = null;
+        currentConversationId = null;
         return;
     }
     
@@ -31,11 +36,16 @@ function updateFileName() {
     // Update the upload button text
     const fileInputLabel = document.getElementById('fileInputLabel');
     fileInputLabel.innerHTML = `📁 ${files.length} file(s) selected - Click to change`;
+    
+    // Automatically upload the file when selected (this creates a new conversation)
+    if (files.length > 0) {
+        uploadFile();
+    }
 }
 
 // Remove individual file from selection
 function removeFile(index) {
-    selectedFiles.splice(index, 0);
+    selectedFiles.splice(index, 1);
     updateFileInput();
     updateFileName();
 }
@@ -52,21 +62,100 @@ function updateFileInput() {
     fileInput.files = dataTransfer.files;
 }
 
+// Upload file function - called when files are selected
+async function uploadFile() {
+    try {
+        const fileInput = document.getElementById('fileInput');
+        const files = fileInput.files;
+
+        if (files.length === 0) {
+            return; // No files to upload
+        }
+
+        showLoading(true);
+
+        // Build form data for file upload
+        const formData = new FormData();
+        // Append the first file (assuming single file for now)
+        formData.append('files', files[0]);
+
+        // POST to upload endpoint
+        const response = await fetch('/app/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+        showLoading(false);
+
+        if (!response.ok || data.status === 'error') {
+            const errorMessage = data.message || 'An error occurred while uploading the file.';
+            showError(errorMessage);
+            currentFileId = null;
+            currentConversationId = null;
+            return;
+        }
+
+        // Store file_id and conversation_id for future chat requests
+        currentFileId = data.file_id;
+        currentConversationId = data.conversation_id;
+        
+        // Update conversation info display
+        const conversationInfo = document.querySelector('.conversation-info p');
+        if (conversationInfo) {
+            conversationInfo.textContent = `ID: ${currentConversationId} | File ID: ${currentFileId}`;
+        }
+
+        // Clear previous chat messages and show file upload success
+        const responseContainer = document.getElementById('response');
+        const responseContent = responseContainer.querySelector('.response-content');
+        responseContent.innerHTML = ''; // Clear previous messages for new conversation
+        
+        // Show success message in chat style
+        const successDiv = document.createElement('div');
+        successDiv.className = 'chat-message';
+        successDiv.style.cssText = `
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 10px;
+            background: #e8f5e9;
+            animation: fadeInUp 0.3s ease-out;
+        `;
+        successDiv.innerHTML = `
+            <div>
+                <strong style="color: #34a853;">System:</strong>
+                <div style="margin-left: 1rem; margin-top: 0.25rem; color: #333;">
+                    ✅ File uploaded successfully! File ID: ${currentFileId}<br>
+                    You can now ask questions about this file.
+                </div>
+            </div>
+        `;
+        responseContent.appendChild(successDiv);
+        responseContainer.style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        showLoading(false);
+        showError('An unexpected error occurred while uploading the file.');
+        currentFileId = null;
+        currentConversationId = null;
+    }
+}
+
 // Enhanced askAssistant function
 async function askAssistant() {
     try {
         const question = document.getElementById('question').value.trim();
         const hints = document.getElementById('hints').value.trim();
-        const fileInput = document.getElementById('fileInput');
-        const files = fileInput.files;
-        // get the conversation ID from the HTML
-        const conversationId = document.querySelector('.conversation-info p').textContent.split('ID: ')[1];
+
         if (!question) {
             showError('Please enter a question.');
             return;
         }
-        if (files.length === 0) {
-            showError('Please upload at least one PDF file.');
+
+        if (!currentFileId || !currentConversationId) {
+            showError('Please upload a file first before asking questions.');
             return;
         }
 
@@ -76,22 +165,22 @@ async function askAssistant() {
         responseContainer.style.display = 'block';
         updateResponseContent('🔄 Processing your request...', 'processing');
 
-        // Build the multipart form data
-        const formData = new FormData();
-        formData.append('hints', hints);
-        formData.append('question', question);
-        formData.append('conversation_id', conversationId);
+        // Build JSON data for chat request
+        const chatData = {
+            hints: hints,
+            question: question,
+            file_id: currentFileId.toString(),
+            conversation_id: currentConversationId.toString()
+        };
 
-        // Append all selected files under the same key “files”
-        for (const file of files) {
-            formData.append('files', file);
-        }
-
-        // POST to Flask
+        // POST to chat endpoint
         const response = await fetch('/app/chat', {
             method: 'POST',
-            body: formData,
-            credentials: 'include' // VERY IMPORTANT for Flask-Login cookies!
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(chatData),
+            credentials: 'include'
         });
 
         const data = await response.json();
@@ -103,12 +192,63 @@ async function askAssistant() {
             return;
         }
 
-        updateResponseContent(data.assistant_response, 'success');
+        // Display question and answer in live chat style
+        displayChatMessage(question, data.assistant_response);
+        
     } catch (error) {
         console.error('Error:', error);
         showLoading(false);
         showError('An unexpected error occurred. Please try again.');
     }
+}
+
+// Display chat message in live chat style
+function displayChatMessage(question, answer) {
+    const responseContainer = document.getElementById('response');
+    const responseContent = responseContainer.querySelector('.response-content');
+    
+    // Clear processing message if it exists (remove spinner and processing text)
+    // Check for the processing indicator div structure
+    const processingDiv = responseContent.querySelector('div[style*="text-align: center"]');
+    if (processingDiv) {
+        responseContent.innerHTML = ''; // Clear processing message
+    }
+    
+    // Create a new message entry
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message';
+    messageDiv.style.cssText = `
+        margin: 1rem 0;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        background: #fafafa;
+        animation: fadeInUp 0.3s ease-out;
+    `;
+    
+    messageDiv.innerHTML = `
+        <div style="margin-bottom: 0.5rem;">
+            <strong style="color: #1a73e8;">You:</strong>
+            <div style="margin-left: 1rem; margin-top: 0.25rem; color: #333;">${escapeHtml(question)}</div>
+        </div>
+        <div>
+            <strong style="color: #34a853;">Assistant:</strong>
+            <div style="margin-left: 1rem; margin-top: 0.25rem; color: #333; white-space: pre-wrap;">${escapeHtml(answer)}</div>
+        </div>
+    `;
+    
+    // Append to response content (accumulate messages)
+    responseContent.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    responseContent.scrollTop = responseContent.scrollHeight;
+}
+
+// Helper function to escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 
@@ -121,12 +261,25 @@ function clearChat() {
     // Clear file selection
     document.getElementById('fileInput').value = '';
     selectedFiles = [];
+    
+    // Reset file and conversation IDs
+    currentFileId = null;
+    currentConversationId = null;
+    
+    // Update file display
     updateFileName();
     
-    // Clear response
+    // Clear response and reset to initial state
     const responseContainer = document.getElementById('response');
     const responseContent = responseContainer.querySelector('.response-content');
     responseContent.innerHTML = '<p class="placeholder">Your AI assistant\'s response will appear here after you ask a question.</p>';
+    
+    // Reset conversation info display
+    const conversationInfo = document.querySelector('.conversation-info p');
+    if (conversationInfo) {
+        const initialId = document.querySelector('.conversation-info p')?.textContent.split('ID: ')[1]?.split(' |')[0] || 'None';
+        conversationInfo.textContent = `ID: ${initialId}`;
+    }
     
     // Hide any error messages
     hideError();
@@ -246,7 +399,7 @@ function handleDrop(e) {
     const fileInput = document.getElementById('fileInput');
     fileInput.files = files;
     
-    // Update display
+    // Update display (this will also trigger file upload)
     updateFileName();
 }
 
@@ -269,6 +422,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up file input change handler
     document.getElementById('fileInput').addEventListener('change', updateFileName);
+    
+    // Initialize conversation info from HTML if available
+    const conversationInfo = document.querySelector('.conversation-info p');
+    if (conversationInfo) {
+        const initialId = conversationInfo.textContent.split('ID: ')[1]?.split(' |')[0];
+        if (initialId) {
+            currentConversationId = initialId;
+        }
+    }
     
     // Add keyboard shortcuts
     document.addEventListener('keydown', function(e) {
