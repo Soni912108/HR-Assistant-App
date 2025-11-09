@@ -27,7 +27,7 @@ def login():
         return render_template("login.html")
     
     # POST request handling
-    email = request.form.get("email", "").strip()
+    email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
     remember = True if request.form.get("remember") else False
 
@@ -38,7 +38,6 @@ def login():
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
-
     # Check if user exists and password is correct
     if user and check_password_hash(user.password, password):
         login_user(user, remember=remember)
@@ -57,10 +56,9 @@ def register():
 
     # POST request handling
     email = request.form.get("email", "").strip().lower()
-    username = request.form.get("username", "").strip()
-    password = request.form.get("password", "")
-    confirm_password = request.form.get("confirm-password", "")  # Match form field name with hyphen
-
+    username = request.form.get("username", "").strip().lower()
+    password = request.form.get("password", "").strip()
+    confirm_password = request.form.get("confirm-password", "").strip()
     # Input validation using helper function
     is_valid, error_message = validate_registration_data(email, username, password, confirm_password)
     if not is_valid:

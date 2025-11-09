@@ -7,8 +7,7 @@ def extract_text_from_pdf_pypdf2(file: FileStorage):
         text = ""
         for page_number in range(len(pdf_reader.pages)):
             text += pdf_reader.pages[page_number].extract_text()
-    # test print the first 100 characters
-    print(text[:100])
+    print(f"{extract_text_from_pdf_pypdf2.__name__}: Extracted {len(text)} characters from PDF.")
     return text
 
 

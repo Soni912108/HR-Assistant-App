@@ -131,48 +131,36 @@ def is_strong_password(password: str) -> bool:
             any(c in special_symbols for c in password)
             )
 
-
-
-# Chat request validation
-def validate_chat_request(form_data):
-    """Validate chat request data"""
-
+def validate_file_upload(data) -> Tuple[bool, Optional[str]]:
+    """
+    Validates uploaded file.
+    
+    Parameters
+    ----------
+    file : FileStorage
+        The uploaded file object
+    
+    Returns
+    -------
+    Tuple[bool, Optional[str]]
+        A tuple containing (is_valid, error_message)
+        If is_valid is True, error_message will be None
+        If is_valid is False, error_message will contain the validation error
+    """
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-    MAX_HINTS_LENGTH = 500
-    MAX_QUESTION_LENGTH = 1000
-
     errors = []
-    
-    # Check required fields
-    if not form_data:
-        errors.append("No form data provided")
+    status_codes = []
 
-    if not form_data.get('hints'):
-        errors.append("Hints are required")
-    if not form_data.get('question'):
-        errors.append("Question is required")
-    if not form_data.getlist('file'):
-        errors.append("At least one file is required")
-    
-    # Validate hints length
-    hints = form_data.get('hints', '')
-    if len(hints) > MAX_HINTS_LENGTH:
-        errors.append(f"Hints must be less than {MAX_HINTS_LENGTH} characters")
-    
-    # Validate question length
-    question = form_data.get('question', '')
-    if len(question) > MAX_QUESTION_LENGTH:
-        errors.append(f"Question must be less than {MAX_QUESTION_LENGTH} characters")
-    
-    # Validate file
-    file = form_data.getlist('file')
-    if len(file) > 1:
-        errors.append(f"Maximum 1 file allowed")
+    file = data.getlist('files')[0] if 'files' in data else None
 
-    # if file.filename == '':
-    #     errors.append("Empty filename not allowed")
-    elif not allowed_file(file.filename):
+    if not file or file.filename == '':
+        errors.append('No selected file')
+        status_codes.append(400)  # Bad Request
+    
+    if not allowed_file(file.filename):
         errors.append(f"File {file.filename} is not a PDF")
+        status_codes.append(400)  # Bad Request
+
     else:
         # Check file size more efficiently
         file.seek(0, 2)  # Seek to end
@@ -181,5 +169,49 @@ def validate_chat_request(form_data):
         
         if file_size > MAX_FILE_SIZE:
             errors.append(f"File {file.filename} is too large (max 10MB)")
+            status_codes.append(400)  # Bad Request
+        
+    return errors, status_codes
+
+
+# Chat request validation
+def validate_chat_request(data: dict) -> Tuple[list, list, str, str, str, str]:
+    """Validate chat request data"""
+
+    MAX_HINTS_LENGTH = 500
+    MAX_QUESTION_LENGTH = 1000
+
+    errors = []
+    status_codes = []
+
+    # Check required fields
+    if not data:
+        errors.append("No form data provided")
+
+    if not data.get('hints'):
+        errors.append("Hints are required")
+        status_codes.append(400)  # Bad Request
+    if not data.get('question'):
+        errors.append("Question is required")
+        status_codes.append(400)  # Bad Request
     
-    return errors
+    file_id = data.get('file_id', '').strip()
+    conversation_id = data.get('conversation_id', '').strip()
+    
+    if not file_id and not conversation_id:
+        errors.append("Internal Server Error. Please try again.")
+        status_codes.append(500)  # Internal Server Error
+    # Validate hints length
+    hints = data.get('hints', '')
+    if len(hints) > MAX_HINTS_LENGTH:
+        errors.append(f"Hints must be less than {MAX_HINTS_LENGTH} characters")
+        status_codes.append(400)  # Bad Request
+    
+    # Validate question length
+    question = data.get('question', '')
+    if len(question) > MAX_QUESTION_LENGTH:
+        errors.append(f"Question must be less than {MAX_QUESTION_LENGTH} characters")
+        status_codes.append(400)  # Bad Request
+    
+    print(f"{validate_chat_request.__name__}: File id: {file_id}, {conversation_id}, {hints}, {question}")
+    return errors, status_codes, file_id, conversation_id, question, hints

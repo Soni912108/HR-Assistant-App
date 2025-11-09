@@ -9,14 +9,15 @@ from flask import (
     current_app
     )
 from flask_login import login_required, current_user
-from openai import RateLimitError, APIError
+
+from openai import APIError, RateLimitError
 from werkzeug.utils import secure_filename
 # local modules
 from backend.utils.assistant import assistant
 from backend.utils.file_utils import extract_text_from_pdf_pypdf2 
 from backend.database.models import Conversations, Contact_Forms, Files
 from backend import db
-from backend.utils.helpers import validate_chat_request
+from backend.utils.helpers import validate_chat_request, validate_file_upload
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -61,43 +62,43 @@ def upload_file():
     if request.method != 'POST':
         return jsonify({"status": "error", "message": "Method not allowed"}), 405
 
-    files = request.files.getlist('files')
-    
-    if not files or all(f.filename == '' for f in files):
-        return jsonify({"status": "error", "message": "At least one PDF file is required."}), 400
+    data = request.files
+    conversation_id = request.form.get('conversation_id')
+
+    errors, status_codes = validate_file_upload(data)
+    for error, status_code in zip(errors, status_codes):
+        return jsonify({"status": "error", "message": error}), status_code
 
     try:
-        # Process the first file (assuming single file upload for now)
-        file = files[0]
+        # Process the first file (single file upload for now)
+        file = data.getlist('files')[0]
         
         # Extract text from PDF
         text_content = extract_text_from_pdf_pypdf2(file)
         
-        # Create a new conversation for this file upload
-        conversation = Conversations(
-            user=current_user.id,
-            user_message='File uploaded',
-            bot_message='File uploaded successfully. You can now ask questions about this file.',
-            time_of_message=datetime.now(),
-            hints='File upload conversation'
-        )
-        db.session.add(conversation)
-        db.session.flush()  # Get conversation ID
+        # Get the current conversation or create a new one
+        conversation = Conversations.query.filter_by(id=conversation_id, user=current_user.id).get_or_404()
+        print(f"Using existing conversation with ID: {conversation.id} for uploaded file by user ID: {current_user.id}")
+        # update the existing conversation' data
+        conversation.user_message = 'File uploaded'
+        conversation.bot_message = 'File received. You can now ask questions about its content.'
+        conversation.time_of_message = datetime.now()
+        db.session.commit()
         
         # Create file record linked to the conversation
         file_record = Files(
-            conversation_id=conversation.id,
+            conversation_id=conversation_id,
             file_name=secure_filename(file.filename),
             text_version_of_the_file=text_content
         )
         db.session.add(file_record)
         db.session.commit()
         
+        print(f"Created file record with ID: {file_record.id} linked to conversation ID: {conversation.id}")
         return jsonify({
             "status": "success",
             "message": "File uploaded successfully",
-            "file_id": file_record.id,
-            "conversation_id": conversation.id
+            "file_id": file_record.id
         }), 200
         
     except Exception as e:
@@ -119,26 +120,16 @@ def chat():
     if request.method != 'POST':
         return jsonify({"status": "error", "message": "Method not allowed"}), 405
 
-    if not request.form and not request.json:
+    if not request.json:
         return jsonify({"status": "error", "message": "No data provided"}), 400
 
-    # Support both form data and JSON
-    data = request.form if request.form else request.json
+    data = request.json
     
-    hints = data.get('hints', '').strip()
-    question = data.get('question', '').strip()
-    file_id = data.get('file_id', '').strip()
-    conversation_id = data.get('conversation_id', '').strip()
+    errors, status_codes, file_id, conversation_id, question, hints = validate_chat_request(data)
 
-    if not question or not hints:
-        return jsonify({"status": "error", "message": "Question and hints are required."}), 400
-
-    if not file_id:
-        return jsonify({"status": "error", "message": "File ID is required. Please upload a file first."}), 400
-
-    if not conversation_id:
-        return jsonify({"status": "error", "message": "Conversation ID is required."}), 400
-
+    for error, status_code in zip(errors, status_codes):
+        return jsonify({"status": "error", "message": error}), status_code
+    
     try:
         # Retrieve file from database using file_id
         file_record = Files.query.filter_by(id=file_id, conversation_id=conversation_id).first()
@@ -151,28 +142,7 @@ def chat():
 
         # Get file content
         file_content = file_record.text_version_of_the_file
-
-        # Call assistant function
-        try:
-            assistant_response = assistant(hints, question, file_content)
-        except RateLimitError as e:
-            return jsonify({
-                "status": "error",
-                "message": "Rate limit exceeded. Please try again later."
-            }), 429
-        except APIError as e:
-            print(f"OpenAI API error: {str(e)}")
-            return jsonify({
-                "status": "error",
-                "message": "Assistant service temporarily unavailable"
-            }), 503
-        except Exception as e:
-            print(f"Assistant error: {str(e)}")
-            return jsonify({
-                "status": "error",
-                "message": "Error generating response"
-            }), 500
-
+        assistant_response = assistant(hints, question, file_content)
         # Save conversation to database
         try:
             conversation = Conversations(
@@ -187,22 +157,29 @@ def chat():
         except Exception as e:
             db.session.rollback()
             print(f"Database error: {str(e)}")
-            # Still return response even if saving fails
-
+            return jsonify({
+                "status": "error",
+                "message": "Error saving conversation"
+            }), 500
         # Return only question and answer (live chat style)
         return jsonify({
             "status": "success",
             "assistant_response": assistant_response,
             "conversation_id": conversation.id
         }), 200
-
-    except Exception as e:
-        print(f"Unexpected error in chat endpoint: {str(e)}")
+    
+    except RateLimitError as e:
         return jsonify({
-            "status": "error",
-            "message": "Internal server error"
+            "status": "error", "message": "Rate limit exceeded. Please try again later."
+        }), 429
+    except APIError as e:
+        return jsonify({
+            "status": "error", "message": "Assistant service temporarily unavailable"
+        }), 503
+    except Exception as e:
+        return jsonify({
+            "status": "error", "message": "Error generating response"
         }), 500
-
 
     
 
