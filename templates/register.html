@@ -12,17 +12,18 @@
     {% include 'navbar.html' %}
 
     <div class="register-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <div class="register-box">
+            <!-- Move flashes inside the box so they're visible and not covered by the navbar -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
             <h1>Create an Account</h1>
             <p class="subtitle">Please register your account</p>
 

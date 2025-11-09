@@ -1,7 +1,13 @@
 // Global variables for file management
 let selectedFiles = [];
 let currentFileId = null;
-let currentConversationId = null;
+let currentConversationId = document.querySelector('.conversation-info').dataset.conversationId;
+
+
+// add upload guard + debounce
+let uploadInProgress = false;
+let uploadTimer = null;
+const UPLOAD_DEBOUNCE_MS = 150;
 
 // Enhanced file upload handling
 function updateFileName() {
@@ -17,7 +23,6 @@ function updateFileName() {
         fileList.innerHTML = '<p style="color: #bdc3c7; font-style: italic;">No files selected, Drag and Drop here</p>';
         // Reset file and conversation IDs when no file is selected
         currentFileId = null;
-        currentConversationId = null;
         return;
     }
     
@@ -37,9 +42,15 @@ function updateFileName() {
     const fileInputLabel = document.getElementById('fileInputLabel');
     fileInputLabel.innerHTML = `📁 ${files.length} file(s) selected - Click to change`;
     
-    // Automatically upload the file when selected (this creates a new conversation)
+    // Debounced auto-upload to prevent duplicate calls from multiple events
     if (files.length > 0) {
-        uploadFile();
+        if (uploadTimer) clearTimeout(uploadTimer);
+        uploadTimer = setTimeout(() => {
+            // only start if not already uploading
+            if (!uploadInProgress) {
+                uploadFile();
+            }
+        }, UPLOAD_DEBOUNCE_MS);
     }
 }
 
@@ -76,8 +87,8 @@ async function uploadFile() {
 
         // Build form data for file upload
         const formData = new FormData();
-        // Append the first file (assuming single file for now)
         formData.append('files', files[0]);
+        formData.append('conversation_id', currentConversationId);
 
         // POST to upload endpoint
         const response = await fetch('/app/upload', {
@@ -93,53 +104,36 @@ async function uploadFile() {
             const errorMessage = data.message || 'An error occurred while uploading the file.';
             showError(errorMessage);
             currentFileId = null;
-            currentConversationId = null;
             return;
         }
 
         // Store file_id and conversation_id for future chat requests
         currentFileId = data.file_id;
-        currentConversationId = data.conversation_id;
-        
-        // Update conversation info display
-        const conversationInfo = document.querySelector('.conversation-info p');
-        if (conversationInfo) {
-            conversationInfo.textContent = `ID: ${currentConversationId} | File ID: ${currentFileId}`;
+        if (data.conversation_id) {
+            currentConversationId = data.conversation_id;
+            // update visible conversation info if present
+            const convEl = document.querySelector('.conversation-info p');
+            if (convEl) convEl.textContent = `ID: ${currentConversationId}`;
         }
 
-        // Clear previous chat messages and show file upload success
+        // Show success notification (not in assistant response)
+        const successMessage = `✅ File uploaded successfully! File ID: ${currentFileId}. You can now ask questions about this file.`;
+        showSuccess(successMessage);
+
+        // Clear previous chat messages and reveal response area (if needed)
         const responseContainer = document.getElementById('response');
         const responseContent = responseContainer.querySelector('.response-content');
         responseContent.innerHTML = ''; // Clear previous messages for new conversation
-        
-        // Show success message in chat style
-        const successDiv = document.createElement('div');
-        successDiv.className = 'chat-message';
-        successDiv.style.cssText = `
-            margin: 1rem 0;
-            padding: 1rem;
-            border-radius: 10px;
-            background: #e8f5e9;
-            animation: fadeInUp 0.3s ease-out;
-        `;
-        successDiv.innerHTML = `
-            <div>
-                <strong style="color: #34a853;">System:</strong>
-                <div style="margin-left: 1rem; margin-top: 0.25rem; color: #333;">
-                    ✅ File uploaded successfully! File ID: ${currentFileId}<br>
-                    You can now ask questions about this file.
-                </div>
-            </div>
-        `;
-        responseContent.appendChild(successDiv);
         responseContainer.style.display = 'block';
-        
+
     } catch (error) {
         console.error('Error uploading file:', error);
         showLoading(false);
         showError('An unexpected error occurred while uploading the file.');
         currentFileId = null;
-        currentConversationId = null;
+    } finally {
+        // release guard (small delay to avoid immediate re-trigger)
+        setTimeout(() => { uploadInProgress = false; }, 250);
     }
 }
 
@@ -352,6 +346,53 @@ function hideError() {
     }
 }
 
+function showSuccess(message) {
+    hideSuccess(); // remove any existing success message
+
+    const successDiv = document.createElement('div');
+    successDiv.id = 'success-message';
+    successDiv.style.cssText = `
+        background: linear-gradient(135deg, #34a853 0%, #28a745 100%);
+        color: white;
+        padding: 0.9rem 1.2rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.25);
+        animation: fadeInUp 0.3s ease-out;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    `;
+    successDiv.innerHTML = `
+        <span>✅</span>
+        <span>${message}</span>
+    `;
+
+    // Insert success message at the top of the section with id="content"
+    const contentSectionById = document.getElementById('content');
+    if (contentSectionById) {
+        contentSectionById.insertBefore(successDiv, contentSectionById.firstChild);
+    } else {
+        // fallback: insert after .content section as before
+        const contentSection = document.querySelector('.content');
+        if (contentSection && contentSection.parentNode) {
+            contentSection.parentNode.insertBefore(successDiv, contentSection);
+        } else {
+            document.body.insertBefore(successDiv, document.body.firstChild);
+        }
+    }
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        hideSuccess();
+    }, 5000);
+}
+
+function hideSuccess() {
+    const existing = document.getElementById('success-message');
+    if (existing) existing.remove();
+}
+
 // Add drag and drop functionality for file upload
 function initializeDragAndDrop() {
     const fileInputLabel = document.getElementById('fileInputLabel');
@@ -422,16 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up file input change handler
     document.getElementById('fileInput').addEventListener('change', updateFileName);
-    
-    // Initialize conversation info from HTML if available
-    const conversationInfo = document.querySelector('.conversation-info p');
-    if (conversationInfo) {
-        const initialId = conversationInfo.textContent.split('ID: ')[1]?.split(' |')[0];
-        if (initialId) {
-            currentConversationId = initialId;
-        }
-    }
-    
+        
     // Add keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Ctrl/Cmd + Enter to submit

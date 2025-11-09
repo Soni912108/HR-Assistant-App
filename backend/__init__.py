@@ -6,7 +6,6 @@ from flask_session import Session
 from flask_talisman import Talisman
 from flask_mail import Mail
 from flask_login import LoginManager
-from flask_migrate import Migrate
 
 # Load environment variables from .env
 if os.path.exists('.env'):
@@ -61,7 +60,6 @@ def create_app():
     # Initialize extensions with app
     db.init_app(app)
     mail.init_app(app)
-    migrate = Migrate(app, db)  # Initialize Flask-Migrate after db is initialized
     
     # Register blueprints
     from .views.routes import routes_bp
