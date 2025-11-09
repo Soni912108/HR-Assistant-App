@@ -44,10 +44,10 @@ if __name__ == "__main__":
     app = create_app()
 
     with app.app_context():
-        if check_specific_row_exists(User, username='Soni1@testing'):
-            print("User 'Soni1@testing' exists in the database.")
+        if check_specific_row_exists(User, username='testing'):
+            print("User 'testing' exists in the database.")
         else:
-            print("User 'Soni1@testing' does not exist in the database.")
+            print("User 'testing' does not exist in the database.")
         
         if is_database_seeded():
             print("Database is already seeded.")
