@@ -201,6 +201,15 @@ def validate_chat_request(data: dict) -> Tuple[list, list, str, str, str, str]:
     if not file_id and not conversation_id:
         errors.append("Internal Server Error. Please try again.")
         status_codes.append(500)  # Internal Server Error
+
+    # convert IDs to integers if possible
+    try:
+        file_id = int(file_id) if file_id is not None else None
+        conversation_id = int(conversation_id) if conversation_id is not None else None
+    except ValueError:
+        errors.append("Invalid type for file_id or conversation_id")
+        status_codes.append(400)  # Bad Request
+
     # Validate hints length
     hints = data.get('hints', '')
     if len(hints) > MAX_HINTS_LENGTH:
@@ -212,6 +221,6 @@ def validate_chat_request(data: dict) -> Tuple[list, list, str, str, str, str]:
     if len(question) > MAX_QUESTION_LENGTH:
         errors.append(f"Question must be less than {MAX_QUESTION_LENGTH} characters")
         status_codes.append(400)  # Bad Request
-    
-    print(f"{validate_chat_request.__name__}: File id: {file_id}, {conversation_id}, {hints}, {question}")
-    return errors, status_codes, file_id, conversation_id, question, hints
+
+    print(f"[validate_chat_request]: File id: {file_id}, {conversation_id}, {hints}, {question}")
+    return errors, status_codes, int(file_id) , conversation_id, question, hints

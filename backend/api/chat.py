@@ -78,8 +78,8 @@ def upload_file():
         
         # Get the current conversation or create a new one
         conversation = Conversations.query.filter_by(id=conversation_id, user=current_user.id).get_or_404()
-        print(f"Using existing conversation with ID: {conversation.id} for uploaded file by user ID: {current_user.id}")
-        # update the existing conversation' data
+        print(f"Using existing conversation with ID: {conversation.id} for the uploaded file by user ID: {current_user.id}")
+        # update the existing conversation data
         conversation.user_message = 'File uploaded'
         conversation.bot_message = 'File received. You can now ask questions about its content.'
         conversation.time_of_message = datetime.now()
@@ -115,25 +115,32 @@ def upload_file():
 def chat():
     """
     Handle chat messages using file_id from previously uploaded files.
+    Accepts JSON and form-data (multipart/form-data / application/x-www-form-urlencoded).
     Only returns question and answer in a live chat style.
     """
+    print(f"Request received: {request.content_type}")
     if request.method != 'POST':
         return jsonify({"status": "error", "message": "Method not allowed"}), 405
 
-    if not request.json:
+    # Support JSON and form-data
+    if request.is_json:
+        data = request.get_json(silent=True)
+    else:
+        # covers multipart/form-data and application/x-www-form-urlencoded
+        data = request.form.to_dict() if request.form else None
+
+    if not data:
         return jsonify({"status": "error", "message": "No data provided"}), 400
 
-    data = request.json
-    
     errors, status_codes, file_id, conversation_id, question, hints = validate_chat_request(data)
 
     for error, status_code in zip(errors, status_codes):
         return jsonify({"status": "error", "message": error}), status_code
-    
+
     try:
         # Retrieve file from database using file_id
         file_record = Files.query.filter_by(id=file_id, conversation_id=conversation_id).first()
-        
+
         if not file_record:
             return jsonify({
                 "status": "error",
@@ -143,6 +150,7 @@ def chat():
         # Get file content
         file_content = file_record.text_version_of_the_file
         assistant_response = assistant(hints, question, file_content)
+
         # Save conversation to database
         try:
             conversation = Conversations(
@@ -161,7 +169,7 @@ def chat():
                 "status": "error",
                 "message": "Error saving conversation"
             }), 500
-        # Return only question and answer (live chat style)
+        # Return the answer
         return jsonify({
             "status": "success",
             "assistant_response": assistant_response,
