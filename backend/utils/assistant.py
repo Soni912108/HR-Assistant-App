@@ -10,8 +10,12 @@ if os.path.exists('.env'):
 
 # Set OpenAI API key --MAKE THE OPENAI_API_KEY ENV VARIABLE
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+OPENAI_MODEL = os.environ.get('OPENAI_MODEL')
 openai.api_key = OPENAI_API_KEY
 
+# NOTE: WORK LEFT HERE, FUNCTION NEEDS TO BE UPDATED TO HANDLE THE CALLS TO THE OPENAI API PROPERLY
+# CURRENTLY THIS IS A BASIC IMPLEMENTATION AND IT DOES NOT WORK AS INTENDED.
+# GETTING ERROR: 
 
 def assistant(hints: str, question: str, file_content: str) -> str:
     # Call assistant function
@@ -25,7 +29,7 @@ def assistant(hints: str, question: str, file_content: str) -> str:
         ]
 
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-instruct",
+            model=OPENAI_MODEL,
             messages=assistant_messages,
             temperature=0.5 
         )
