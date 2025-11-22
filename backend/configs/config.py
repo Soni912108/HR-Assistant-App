@@ -53,5 +53,3 @@ MAX_PARSE_SECONDS = 10                # Timeout for PDF parsing
 # ---------------------------------------------------------
 # OTHER MISC SETTINGS (placeholder)
 # ---------------------------------------------------------
-
-# Add future configuration here as needed
