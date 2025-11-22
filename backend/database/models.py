@@ -1,9 +1,6 @@
-
-from flask_mail import Message
-from sqlalchemy.event import listens_for
 from flask_login import UserMixin
 
-from backend import db, mail
+from backend import db
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -46,24 +43,3 @@ class Files(db.Model):
     def __repr__(self):
         return f"Files('File Name: {self.file_name} in Conversation ID: {self.conversation_id}')"
     
-
-class Contact_Forms(db.Model):
-    __tablename__ = 'contact_forms'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
-    user_email = db.Column(db.String(120), nullable=False)
-    user_message = db.Column(db.String(500), nullable=False)
-
-    def __repr__(self):
-        return f"Client('User ID: {self.user.id}', submitted a new form '{self.user_message[:50]}')"
-    
-
-@listens_for(Contact_Forms, "after_insert")
-def send_email_after_insert(mapper, connection, target):
-    admin_emails = mail.config['ADMINS']
-    for admin_email in admin_emails:
-        msg = Message("New Contact Form Submission",
-                      recipients=[admin_email])
-        msg.body = f"New contact form submission from {target.user} ({target.user_email}): \n\n{target.user_message}"
-        mail.send(msg)

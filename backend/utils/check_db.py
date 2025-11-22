@@ -1,21 +1,7 @@
-import sys
-import os
-import random
-import string
-from datetime import datetime, timedelta
-
-# make project root (parent of 'backend') available on sys.path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
-if project_root not in sys.path:
-    print(f"Adding {project_root} to sys.path")
-    sys.path.insert(0, project_root)
-else:
-    print(f"{project_root} already in sys.path. Continuing...")
-
-from dotenv import load_dotenv
+import backend.configs.config as project_paths
 
 from backend import create_app,db # db here is -> db = SQLAlchemy()
-from backend.database.models import User, Conversations, Files, Contact_Forms
+from backend.database.models import User, Conversations, Files
 
 # Query the tables to check if they are empty
 def check_table_empty(model):
@@ -33,13 +19,13 @@ def is_database_seeded():
         users_empty = check_table_empty(User)
         conversations_empty = check_table_empty(Conversations)
         files_empty = check_table_empty(Files)
-        contact_forms_empty = check_table_empty(Contact_Forms)
 
-        if users_empty and conversations_empty and files_empty and contact_forms_empty:
+        if users_empty and conversations_empty and files_empty:
             return False  # Database is not seeded
         return True  # Database has some data
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
     load_dotenv()
     app = create_app()
 

@@ -9,7 +9,6 @@ load_dotenv()
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY").strip()
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL").strip()
 
-client = OpenAI(api_key=OPENAI_API_KEY)
 
 def assistant(hints: str, question: str, file_content: str) -> str:
     """
@@ -38,9 +37,9 @@ def assistant(hints: str, question: str, file_content: str) -> str:
     Exception
         For any other unexpected errors.
     """
-    print(f"[assistant] Called with hints: {hints[:60]}..., question: {question[:60]}..., file_content length: {len(file_content)}")
     try:
         start_time = time.time()
+        client = OpenAI(api_key=OPENAI_API_KEY)
         print("[assistant] Sending request to OpenAI API...")
 
         response = client.chat.completions.create(
@@ -78,6 +77,8 @@ def assistant_stream(hints: str, question: str, file_content: str) -> str:
 
     try:
         start_time = time.time()
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        print("[assistant_stream] Sending request to OpenAI API...")
 
         stream = client.chat.completions.create(
             model=OPENAI_MODEL,
