@@ -63,7 +63,17 @@ def upload_file():
         return jsonify({"status": "error", "message": "Method not allowed"}), 405
 
     data = request.files
+    files = data.getlist('files')
+    if not files or len(files) == 0:
+        return jsonify({"status": "error", "message": "No file part in the request"}), 400
+    # check the len of files, if more than 1, return error
+    if len(data.getlist('files')) != 1:
+        return jsonify({"status": "error", "message": "Only single file upload is supported at this time."}), 400
     conversation_id = request.form.get('conversation_id')
+    if not conversation_id or not conversation_id.isdigit():
+        return jsonify({"status": "error", "message": "Missing conversation id"}), 500
+    # Get the current conversation
+    conversation = Conversations.query.filter_by(id=int(conversation_id), user=current_user.id).first_or_404()
 
     errors, status_codes = validate_file_upload(data)
     for error, status_code in zip(errors, status_codes):
@@ -71,13 +81,10 @@ def upload_file():
 
     try:
         # Process the first file (single file upload for now)
-        file = data.getlist('files')[0]
+        file = files[0]
         
         # Extract text from PDF
         text_content = extract_text_from_pdf_pypdf2(file)
-        
-        # Get the current conversation or create a new one
-        conversation = Conversations.query.filter_by(id=conversation_id, user=current_user.id).get_or_404()
         print(f"Using existing conversation with ID: {conversation.id} for the uploaded file by user ID: {current_user.id}")
         # update the existing conversation data
         conversation.user_message = 'File uploaded'
@@ -87,7 +94,7 @@ def upload_file():
         
         # Create file record linked to the conversation
         file_record = Files(
-            conversation_id=conversation_id,
+            conversation_id=int(conversation_id),
             file_name=secure_filename(file.filename),
             text_version_of_the_file=text_content
         )
@@ -107,7 +114,7 @@ def upload_file():
         return jsonify({
             "status": "error",
             "message": f"Error processing file: {str(e)}"
-        }), 400
+        }), 500
 
 
 @chat_bp.route('/chat', methods=['POST'])

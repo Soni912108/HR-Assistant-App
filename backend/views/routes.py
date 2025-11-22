@@ -25,12 +25,18 @@ def home():
 def login():
     if request.method == "GET":
         return render_template("login.html")
-    
-    # POST request handling
-    email = request.form.get("email", "").strip().lower()
-    password = request.form.get("password", "")
-    remember = True if request.form.get("remember") else False
 
+    # Support JSON and form-data
+    if request.is_json:
+        data = request.get_json(silent=True)
+    else:
+        # covers multipart/form-data and application/x-www-form-urlencoded
+        data = request.form.to_dict() if request.form else None
+
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+    remember = data.get("remember", False)
+ 
     # Input validation
     if not email or not password:
         flash('Please fill in all fields', 'error')
@@ -54,11 +60,19 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
 
+    # Support JSON and form-data
+    if request.is_json:
+        data = request.get_json(silent=True)
+    else:
+        # covers multipart/form-data and application/x-www-form-urlencoded
+        data = request.form.to_dict() if request.form else None
+
     # POST request handling
-    email = request.form.get("email", "").strip().lower()
-    username = request.form.get("username", "").strip().lower()
-    password = request.form.get("password", "").strip()
-    confirm_password = request.form.get("confirm-password", "").strip()
+    email = data.get("email", "").strip().lower()
+    username = data.get("username", "").strip().lower()
+    password = data.get("password", "").strip()
+    confirm_password = data.get("confirm-password", "").strip()
+
     # Input validation using helper function
     is_valid, error_message = validate_registration_data(email, username, password, confirm_password)
     if not is_valid:
