@@ -4,17 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_session import Session
 from flask_talisman import Talisman
-from flask_mail import Mail
 from flask_login import LoginManager
 
-# Load environment variables from .env
-if os.path.exists('.env'):
-    from dotenv import load_dotenv
-    load_dotenv()
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
 
 # Initialize extensions
 db = SQLAlchemy()
-mail = Mail()
 # Main application function
 def create_app():
     # Create Flask app
@@ -46,20 +43,8 @@ def create_app():
         force_https=True
     )
     
-    # Mail Configuration
-    app.config.update(
-        MAIL_SERVER=os.environ.get('MAIL_SERVER', 'smtp.gmail.com'),
-        MAIL_PORT=587,
-        MAIL_USE_TLS=True,
-        MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
-        MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD'),
-        MAIL_DEFAULT_SENDER=os.environ.get('MAIL_DEFAULT_SENDER'),
-        ADMINS=[os.environ.get('MAIL_ADMIN_DEFAULT_SENDER')]
-    )
-    
     # Initialize extensions with app
     db.init_app(app)
-    mail.init_app(app)
     
     # Register blueprints
     from .views.routes import routes_bp

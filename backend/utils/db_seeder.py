@@ -1,22 +1,10 @@
-import sys
-import os
+import backend.configs.config as project_paths
+
 import random
 import string
-from datetime import datetime, timedelta
-
-# make project root (parent of 'backend') available on sys.path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
-if project_root not in sys.path:
-    print(f"Adding {project_root} to sys.path")
-    sys.path.insert(0, project_root)
-else:
-    print(f"{project_root} already in sys.path. Continuing...")
-
-
-from dotenv import load_dotenv
 
 from backend import create_app,db # db here is -> db = SQLAlchemy()
-from backend.database.models import User, Conversations, Files, Contact_Forms
+from backend.database.models import User, Conversations
 
 from faker import Faker
 # Initialize Faker for generating random data
@@ -59,14 +47,14 @@ def seed_database():
     """Main function to seed the database with test data"""
     # Load environment variables
     load_dotenv()
-    # create app in testing config
-    app = create_app('testing')
+    # create app
+    app = create_app()
 
     with app.app_context():
         try:
             # Create and commit users first to get their IDs
             print("Creating test users...")
-            users = create_test_users()
+            users = create_test_users(10)
             db.session.add_all(users)
             db.session.flush()  # This assigns IDs without committing
     
@@ -85,4 +73,5 @@ def seed_database():
             raise
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
     seed_database() 

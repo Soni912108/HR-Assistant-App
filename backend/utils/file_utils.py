@@ -1,87 +1,103 @@
-from pypdf import PdfReader
-from werkzeug.datastructures import FileStorage
 import os
-from typing import Optional
+import threading
 
-def extract_text_from_pdf_pypdf2(file: FileStorage, max_size_mb: Optional[int] = None) -> str:
-    """
-    Extract text from an uploaded PDF with size checks and clear error messages.
+from contextlib import contextmanager
+from pypdf import PdfReader   # Secure maintained fork of PyPDF2
+from werkzeug.datastructures import FileStorage
 
-    Raises:
-        ValueError: for validation errors (empty file, too large, etc).
-        RuntimeError: for PDF parsing/extraction errors.
-    """
-    # Configurable maximum (MB). Can be overridden via env var MAX_PDF_SIZE_MB or the max_size_mb arg.
-    DEFAULT_MAX_MB = 20
-    if max_size_mb is None:
-        try:
-            max_size_mb = int(os.environ.get("MAX_PDF_SIZE_MB", DEFAULT_MAX_MB))
-        except Exception:
-            max_size_mb = DEFAULT_MAX_MB
-    max_bytes = max_size_mb * 1024 * 1024
-    # Try to get content length from FileStorage if available
-    size = getattr(file, "content_length", None)
+from backend.configs.config import MAX_PAGES, MAX_TEXT_CHARS, MAX_PARSE_SECONDS
 
-    # If not available, attempt to determine by seeking the stream (if possible)
-    if size is None:
-        stream = file.stream
-        try:
-            current_pos = stream.tell()
-            stream.seek(0, os.SEEK_END)
-            size = stream.tell()
-            stream.seek(current_pos)
-        except (OSError, AttributeError):
-            size = None  # couldn't determine size
-        
-    # if size == 0:
-    #     raise ValueError("[extract_text_from_pdf_pypdf2] Uploaded PDF is empty.")
-    
-    if size is not None and size > max_bytes:
-        raise ValueError(f"[extract_text_from_pdf_pypdf2] Uploaded PDF is too large ({size / (1024*1024):.1f} MB). Maximum allowed is {max_size_mb} MB.")
+class TimeoutException(Exception):
+    pass
 
-    if size is None:
-        # Warn but allow: size couldn't be determined; this is less safe for very large files
-        print("[extract_text_from_pdf_pypdf2]: Warning - could not determine uploaded file size; proceeding with extraction.")
+@contextmanager
+def time_limit(seconds):
+    def timer():
+        raise_timeout()
+
+    def raise_timeout():
+        raise TimeoutException("[time_limit] PDF parsing exceeded safe time limit")
+
+    # Create a timer thread that raises the exception after N seconds
+    timer_thread = threading.Timer(seconds, raise_timeout)
+    timer_thread.start()
 
     try:
-        # Read pages and accumulate text efficiently
-        with file.stream as file_stream:
-            pdf_reader = PdfReader(file_stream)
-            
-            if pdf_reader.is_encrypted:
-                print("[extract_text_from_pdf_pypdf2]: PDF is encrypted, attempting to decrypt.")
-                try:
-                    result = pdf_reader.decrypt("")  # Try to decrypt with empty password
-                except Exception:
-                    raise ValueError("[extract_text_from_pdf_pypdf2] The PDF is encrypted and cannot be processed.")
-                if not result:
-                    raise ValueError("[extract_text_from_pdf_pypdf2] The PDF is encrypted and cannot be processed.")
-            
+        yield
+    finally:
+        timer_thread.cancel()
+
+
+def extract_text_secure(file: FileStorage, max_size_mb=None) -> str:
+    print("[extract_text_secure] Starting secure PDF extraction")
+
+    max_size_mb = max_size_mb or int(os.environ.get("MAX_PDF_SIZE_MB"))
+    max_bytes = max_size_mb * 1024 * 1024
+
+    print(f"[extract_text_secure] Max allowed size: {max_size_mb} MB")
+
+    size = getattr(file, "content_length", None)
+
+    if size:
+        print(f"[extract_text_secure] Uploaded file size: {size} bytes")
+
+    # If size known, enforce size limit
+    if size and size > max_bytes:
+        raise ValueError(f"[extract_text_secure] PDF too large ({size} bytes). Limit is {max_bytes} bytes.")
+
+    try:
+        with time_limit(MAX_PARSE_SECONDS):
+            print("[extract_text_secure] Parsing PDF with pypdf...")
+
+            pdf = PdfReader(file.stream)
+
+            if pdf.is_encrypted:
+                print("[extract_text_secure] PDF is encrypted; attempting decryption...")
+                if not pdf.decrypt(""):
+                    raise ValueError("[extract_text_secure] Encrypted PDF cannot be processed")
+                print("[extract_text_secure] Successfully decrypted PDF")
+
+            num_pages = len(pdf.pages)
+            print(f"[extract_text_secure] PDF contains {num_pages} pages")
+
+            if num_pages > MAX_PAGES:
+                raise ValueError(f"[extract_text_secure] PDF has too many pages ({num_pages}). Limit is {MAX_PAGES}.")
+
             parts = []
-            for page in pdf_reader.pages:
+            total_chars = 0
+
+            for idx, page in enumerate(pdf.pages):
+                print(f"[extract_text_secure] Extracting text from page {idx+1}/{num_pages}")
                 try:
-                    page_text = page.extract_text()
+                    txt = page.extract_text() or ""
                 except Exception as e:
-                    print(f"[extract_text_from_pdf_pypdf2]: Failed to extract text from a page: {e}")
-                    continue  # Skip problematic pages
-                if page_text:
-                    parts.append(page_text)
+                    print(f"[extract_text_secure] Failed to extract text from page {idx+1}: {e}")
+                    continue
+
+                parts.append(txt)
+                total_chars += len(txt)
+
+                print(f"[extract_text_secure] Page {idx+1} extracted: {len(txt)} chars (total so far: {total_chars})")
+
+                if total_chars > MAX_TEXT_CHARS:
+                    raise ValueError("[extract_text_secure] Extracted text exceeds maximum safe length")
+
             text = "".join(parts)
+            if not text:
+                raise ValueError("[extract_text_secure] No extractable text found in PDF")
+
+            print(f"[extract_text_secure] Successfully extracted {len(text)} characters from PDF")
+            return text
+
+    except TimeoutException as e:
+        raise RuntimeError(f"[extract_text_secure] PDF processing timed out: {e}")
     except Exception as e:
-        raise RuntimeError(f"[extract_text_from_pdf_pypdf2] Failed to parse PDF -> {e}")
-
-    if not text:
-        # No text extracted (could be scanned images, encrypted, or empty)
-        raise ValueError("[extract_text_from_pdf_pypdf2] No extractable text found in the PDF. The file may be scanned/images or encrypted.")
-
-    print(f"[extract_text_from_pdf_pypdf2]: Extracted {len(text)} characters from PDF.")
-    return text
+        raise RuntimeError(f"[extract_text_secure] PDF parsing failed: {e}")
 
 
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
-
     # Configuration constants
     ALLOWED_EXTENSIONS = {'pdf'}
 

@@ -1,8 +1,11 @@
 # builtin modules
 import re
+import html
+from typing import Tuple
 from typing import Optional, Union, Tuple
 # local modules
 from .file_utils import allowed_file
+from backend.configs.config import UNSAFE_UNICODE_PATTERN, MAX_HINTS_LENGTH, MAX_QUESTION_LENGTH
 # third-party modules
 from flask import Response, render_template, flash, redirect, request
 
@@ -181,53 +184,95 @@ def validate_file_upload(data) -> Tuple[list, list]:
     return errors, status_codes
 
 
-# Chat request validation
-def validate_chat_request(data: dict) -> Tuple[list, list, str, str, str, str]:
-    """Validate chat request data"""
+def sanitize_text(value: str, field_name: str) -> str:
+    """
+    Perform security sanitation:
+    - Escape HTML/JS payloads
+    - Remove dangerous Unicode
+    - Collapse repeated characters
+    - Remove suspicious patterns like base64 bombs
+    """
 
-    MAX_HINTS_LENGTH = 500
-    MAX_QUESTION_LENGTH = 1000
+    if not isinstance(value, str):
+        raise ValueError(f"[validate_chat_request] Invalid type for {field_name}. Expected string.")
+
+    # Trim whitespace
+    value = value.strip()
+
+    # Reject invisible/malicious unicode
+    if UNSAFE_UNICODE_PATTERN.search(value):
+        raise ValueError(f"[validate_chat_request] {field_name} contains unsupported characters")
+
+    # Escape HTML to avoid injection (even though API returns JSON)
+    value = html.escape(value)
+
+    # Basic sanity filters — avoid pathological repetition like "AAAAA..." x 1M
+    if len(set(value)) == 1 and len(value) > 100:
+        raise ValueError(f"[validate_chat_request] {field_name} appears malicious (repetitive payload detected).")
+
+    # Avoid extremely long base64 strings or binary-like payloads
+    if re.fullmatch(r"[A-Za-z0-9+/=]{2000,}", value):
+        raise ValueError(f"[validate_chat_request] {field_name} looks like a suspicious encoded payload.")
+
+    return value
+
+
+def validate_chat_request(data: dict) -> Tuple[list, list, int, int, str, str]:
+    """Validate chat request data with security protections."""
 
     errors = []
     status_codes = []
 
-    # Check required fields
     if not data:
         errors.append("[validate_chat_request] No form data provided")
+        return errors, [400], None, None, "", ""
 
-    if not data.get('hints'):
+    # Extract raw input safely
+    raw_hints = data.get('hints', '')
+    raw_question = data.get('question', '')
+
+    # Required checks
+    if not raw_hints:
         errors.append("[validate_chat_request] Hints are required")
-        status_codes.append(400)  # Bad Request
-    if not data.get('question'):
+        status_codes.append(400)
+    if not raw_question:
         errors.append("[validate_chat_request] Question is required")
-        status_codes.append(400)  # Bad Request
-    
+        status_codes.append(400)
+
+    # Extract id fields
     file_id = data.get('file_id', '').strip()
     conversation_id = data.get('conversation_id', '').strip()
-    
+
     if not file_id and not conversation_id:
         errors.append("[validate_chat_request] Internal Server Error. Please try again.")
-        status_codes.append(500)  # Internal Server Error
+        status_codes.append(500)
 
-    # convert IDs to integers if possible
+    # Convert IDs to integers
     try:
-        file_id = int(file_id) if file_id is not None else None
-        conversation_id = int(conversation_id) if conversation_id is not None else None
+        file_id = int(file_id) if file_id else None
+        conversation_id = int(conversation_id) if conversation_id else None
     except ValueError:
         errors.append("[validate_chat_request] Invalid type for file_id or conversation_id")
-        status_codes.append(400)  # Bad Request
+        status_codes.append(400)
 
-    # Validate hints length
-    hints = data.get('hints', '')
-    if len(hints) > MAX_HINTS_LENGTH:
+    # Length validation BEFORE sanitization
+    if len(raw_hints) > MAX_HINTS_LENGTH:
         errors.append(f"[validate_chat_request] Hints must be less than {MAX_HINTS_LENGTH} characters")
-        status_codes.append(400)  # Bad Request
-    
-    # Validate question length
-    question = data.get('question', '')
-    if len(question) > MAX_QUESTION_LENGTH:
+        status_codes.append(400)
+    if len(raw_question) > MAX_QUESTION_LENGTH:
         errors.append(f"[validate_chat_request] Question must be less than {MAX_QUESTION_LENGTH} characters")
-        status_codes.append(400)  # Bad Request
+        status_codes.append(400)
 
-    print(f"[validate_chat_request]: File id: {file_id}, {conversation_id}, {hints}, {question}")
-    return errors, status_codes, int(file_id) , conversation_id, question, hints
+    # Sanitize inputs (secure)
+    try:
+        hints = sanitize_text(raw_hints, "hints")
+        question = sanitize_text(raw_question, "question")
+    except ValueError as e:
+        errors.append(str(e))
+        status_codes.append(400)
+        return errors, status_codes, None, None, "", ""
+
+    print(f"[validate_chat_request] Validated request: file_id={file_id}, conversation_id={conversation_id}")
+
+    return errors, status_codes, file_id, conversation_id, question, hints
+

@@ -5,8 +5,7 @@ from flask import (
     Blueprint,
     jsonify,
     request,
-    render_template,
-    current_app
+    render_template
     )
 from flask_login import login_required, current_user
 
@@ -14,8 +13,8 @@ from openai import APIError, RateLimitError
 from werkzeug.utils import secure_filename
 # local modules
 from backend.utils.assistant import assistant
-from backend.utils.file_utils import extract_text_from_pdf_pypdf2 
-from backend.database.models import Conversations, Contact_Forms, Files
+from backend.utils.file_utils import extract_text_secure 
+from backend.database.models import Conversations, Files
 from backend import db
 from backend.utils.helpers import validate_chat_request, validate_file_upload
 
@@ -69,6 +68,7 @@ def upload_file():
     # check the len of files, if more than 1, return error
     if len(data.getlist('files')) != 1:
         return jsonify({"status": "error", "message": "Only single file upload is supported at this time."}), 400
+    
     conversation_id = request.form.get('conversation_id')
     if not conversation_id or not conversation_id.isdigit():
         return jsonify({"status": "error", "message": "Missing conversation id"}), 500
@@ -84,7 +84,7 @@ def upload_file():
         file = files[0]
         
         # Extract text from PDF
-        text_content = extract_text_from_pdf_pypdf2(file)
+        text_content = extract_text_secure(file)
         print(f"Using existing conversation with ID: {conversation.id} for the uploaded file by user ID: {current_user.id}")
         # update the existing conversation data
         conversation.user_message = 'File uploaded'
@@ -194,72 +194,4 @@ def chat():
     except Exception as e:
         return jsonify({
             "status": "error", "message": "Error generating response"
-        }), 500
-
-    
-
-@chat_bp.route('/new_contact_form', methods=['POST'])
-@login_required
-def new_form():
-    """
-    Handle new contact form submissions with proper validation.
-    """
-    try:
-        if request.method != 'POST':
-            return jsonify({
-                "status": "error", 
-                "message": "Method not allowed"
-            }), 405
-            
-        if not request.json:
-            return jsonify({
-                "status": "error", 
-                "message": "No JSON data provided"
-            }), 400
-        
-        data = request.json
-        user_email = data.get('email', '').strip()
-        user_message = data.get('message', '').strip()
-        
-        # Validate input
-        if not user_email or not user_message:
-            return jsonify({
-                "status": "error",
-                "message": "Email and message are required"
-            }), 400
-        
-        if len(user_message) > 500:
-            return jsonify({
-                "status": "error",
-                "message": "Message must be less than 500 characters"
-            }), 400
-        
-        # Create contact form record
-        try:
-            new_form = Contact_Forms(
-                user=current_user.id, 
-                user_email=user_email, 
-                user_message=user_message
-            )
-            db.session.add(new_form)
-            db.session.commit()
-            
-            return jsonify({
-                "status": "success",
-                "message": "Contact form submitted successfully"
-            }), 200
-            
-        except Exception as e:
-            db.session.rollback()
-            print(f"Database error in contact form: {str(e)}")
-            return jsonify({
-                "status": "error",
-                "message": "Error saving contact form"
-            }), 500
-            
-    except Exception as e:
-        print(f"Unexpected error in contact form: {str(e)}")
-        return jsonify({
-            "status": "error",
-            "message": "Internal server error"
         }), 500

@@ -106,21 +106,12 @@ async function uploadFile() {
             currentFileId = null;
             return;
         }
-
-        // Store file_id and conversation_id for future chat requests
         currentFileId = data.file_id;
-        if (data.conversation_id) {
-            currentConversationId = data.conversation_id;
-            // update visible conversation info if present
-            const convEl = document.querySelector('.conversation-info p');
-            if (convEl) convEl.textContent = `ID: ${currentConversationId}`;
-        }
-
-        // Show success notification (not in assistant response)
+        // Show success notification
         const successMessage = `✅ File uploaded successfully! File ID: ${currentFileId}. You can now ask questions about this file.`;
         showSuccess(successMessage);
 
-        // Clear previous chat messages and reveal response area (if needed)
+        // Clear previous chat messages and reveal response area
         const responseContainer = document.getElementById('response');
         const responseContent = responseContainer.querySelector('.response-content');
         responseContent.innerHTML = ''; // Clear previous messages for new conversation
@@ -137,7 +128,7 @@ async function uploadFile() {
     }
 }
 
-// Enhanced askAssistant function
+// askAssistant function
 async function askAssistant() {
     try {
         const question = document.getElementById('question').value.trim();
@@ -183,10 +174,11 @@ async function askAssistant() {
         if (!response.ok || data.status === 'error') {
             const errorMessage = data.message || 'An error occurred while processing your request.';
             showError(errorMessage);
+            showLoading(false);
             return;
         }
 
-        // Display question and answer in live chat style
+        // Display question and answer
         displayChatMessage(question, data.assistant_response);
         
     } catch (error) {
@@ -196,12 +188,12 @@ async function askAssistant() {
     }
 }
 
-// Display chat message in live chat style
+// Display chat message 
 function displayChatMessage(question, answer) {
     const responseContainer = document.getElementById('response');
     const responseContent = responseContainer.querySelector('.response-content');
     
-    // Clear processing message if it exists (remove spinner and processing text)
+    // Clear processing message if it exists and remove spinner and processing text
     // Check for the processing indicator div structure
     const processingDiv = responseContent.querySelector('div[style*="text-align: center"]');
     if (processingDiv) {
@@ -246,7 +238,7 @@ function escapeHtml(text) {
 }
 
 
-// Enhanced clearChat function
+// clearChat function
 function clearChat() {
     // Clear form inputs
     document.getElementById('hints').value = '';
@@ -373,7 +365,7 @@ function showSuccess(message) {
     if (contentSectionById) {
         contentSectionById.insertBefore(successDiv, contentSectionById.firstChild);
     } else {
-        // fallback: insert after .content section as before
+        // fallback: insert after .content section
         const contentSection = document.querySelector('.content');
         if (contentSection && contentSection.parentNode) {
             contentSection.parentNode.insertBefore(successDiv, contentSection);
@@ -393,7 +385,7 @@ function hideSuccess() {
     if (existing) existing.remove();
 }
 
-// Add drag and drop functionality for file upload
+// Drag and drop functionality for file upload
 function initializeDragAndDrop() {
     const fileInputLabel = document.getElementById('fileInputLabel');
     const fileList = document.getElementById('fileList');
@@ -489,28 +481,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-// Add CSS for animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .file-item {
-        animation: fadeInUp 0.3s ease-out;
-    }
-    
-    .remove-file:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-    }
-`;
-document.head.appendChild(style);

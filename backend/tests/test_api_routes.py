@@ -178,7 +178,7 @@ class TestUploadWorkflow:
         )
 
         assert resp.status_code == 500
-        assert "failed to parse" in resp.json().get("message", "").lower()
+        assert "stream has ended unexpectedly" in resp.json().get("message", "").lower()
         self._success("Corrupted PDF correctly rejected — parsing failure detected.")
 
     # -------------------------------------------------------------------------
